@@ -1,0 +1,149 @@
+.sidebar {
+    position: fixed;
+    bottom: var(--spacing-sm);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    justify-items: center;
+    gap: var(--spacing-xs);
+    align-items: center;
+    background: var(--white);
+    box-shadow: 0 0 10px 0 rgba(34, 34, 34, 0.1);
+}
+
+.sidebarItem {
+    width: 100%;
+}
+
+.add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebarItem a {
+    padding: var(--spacing-xs);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: var(--transition);
+}
+
+.sidebarItem a svg {
+    color: var(--grey);
+    height: 30px;
+    transition: var(--transition);
+}
+.sidebarItem a span {
+    color: var(--grey);
+    font-weight: 300;
+    transition: var(--transition);
+}
+
+.sidebarItem a:hover svg, .sidebarItem a:hover span {
+    color: var(--black);
+}
+
+.sidebarItem.active span, .sidebarItem.active svg {
+    color: var(--black);
+}
+
+.addButton {
+    cursor: pointer;
+    background: var(--black);
+    border: none;
+    color: var(--white);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-el);
+}
+.addButton svg {
+    width: 40px;
+    height: 40px;
+    transition: .2s ease-in-out;
+}
+.addButton.active svg {
+    transition: .2s ease-in-out;
+    transform: rotate(45deg);
+}
+
+.modalOverlay {
+    align-items: flex-end;
+}
+
+.modalContent {
+    width: 400px;
+    margin-bottom: 100px;
+    box-shadow: 0 0 10px 0 rgba(34, 34, 34, 0.1);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.modalContent a {
+    padding: var(--spacing-xs);
+    display: flex;
+    gap: var(--spacing-xs);
+    border-radius: var(--radius-xs);
+    align-items: center;
+}
+.modalContent a svg {
+    color: var(--black);
+    height: 30px;
+    width: 30px;
+}
+
+.modalContent a:hover {
+    background: var(--grey);
+    color: var(--white);
+}
+.modalContent a:hover svg {
+    color: var(--white);
+}
+
+.modalContent::after, .modalContent::before {
+    content: '';
+    position: absolute;
+    background: var(--white);
+    left: 50%;
+    bottom: -8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    transform: translate(-50%, 0);
+    rotate: 45deg;
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        gap: 0;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        border-radius: 0;
+        padding: 0;
+        transform: translateX(0);
+    }
+    .sidebarItem a span {
+        font-size: 0.875rem;
+    }
+    .modalContent {
+        width: 400px;
+        margin-bottom: 70px;
+    }
+}
+@media (max-width: 400px) {
+    .sidebarItem a span {
+        font-size: 0.75rem;
+    }
+    .addButton svg {
+        width: 30px;
+        height: 30px;
+    }
+}

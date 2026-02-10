@@ -1,0 +1,213 @@
+.input {
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    color: var(--black);
+}
+
+.categories {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.category {
+    border: 1px solid var(--grey);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--white);
+}
+
+.categoryHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xs);
+    background: var(--grey-light);
+}
+
+.count {
+    font-size: 0.875rem;
+    color: var(--grey);
+}
+
+.categoryContent {
+    padding: var(--spacing-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.selectedItems {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.selectedItem {
+    position: relative;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+    box-shadow: 0 0 10px 0 rgba(34, 34, 34, 0.1);
+}
+
+.selectedItem img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.removeBtn {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: none;
+    color: var(--white);
+    background: var(--black);
+    border-radius: var(--radius-xs);
+    padding: calc(var(--spacing-xs) / 2);
+    cursor: pointer;
+    transition: var(--transition);
+    background: #b32e2e;
+}
+.removeBtn:hover {
+    background: #d86d6d;
+}
+
+.emptyText {
+    text-align: center;
+    color: #999;
+    margin: 0;
+    padding: 20px;
+}
+
+.addBtn:hover {
+    border-color: var(--grey);
+    background: var(--grey-light);
+}
+
+.addBtn svg {
+    width: 100px;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 100px;
+}
+
+.footer button {
+    width: 100%;
+}
+
+.modal {
+    position: relative;
+    background: var(--white);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 800px;
+    overflow-y: scroll;
+    height: 90vh;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.modalBody {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modalGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.modalItem {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.modalItem.selected {
+    border: 1px solid var(--black);
+}
+
+.modalItemImage img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.checkmark {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: none;
+    color: var(--white);
+    background: var(--black);
+    border-radius: var(--radius-xs);
+    padding: calc(var(--spacing-xs) / 2);
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--black);
+}
+
+.modalItemName {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.emptyModal {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+}
+
+.modalFooter {
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--grey);
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+    .selectedItems {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+@media (max-width: 520px) {
+    .outfitsModal {
+        padding: 0;
+        align-items: flex-end;
+    }
+    .modal {
+        border-radius: 0;
+        width: 100%;
+        height: 80vh;
+    }
+    .modalFooter {
+        padding-bottom: 0;
+    }
+}

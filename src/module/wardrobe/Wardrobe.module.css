@@ -1,0 +1,239 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.topControls {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.svg {
+    height: 20px;
+}
+
+.filterBtn, .sortOrderBtn {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-xs) / 2);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+}
+
+.filterBtn:hover, .sortOrderBtn:hover, .sortSelect:hover {
+    border-color: var(--black);
+}
+
+.filterBadge {
+    background: var(--black);
+    color: var(--white);
+    border-radius: var(--radius-sm);
+    padding: calc(var(--spacing-xs) / 2);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.sortPanel {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.sortSelect {
+    height: 42px;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    color: var(--black);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.modal {
+    position: relative;
+    background: var(--white);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 800px;
+    overflow-y: scroll;
+    height: 90vh;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.modalBody {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.filterGroup {
+    margin-bottom: var(--spacing-sm);
+}
+
+.filterGroup:last-child {
+    margin-bottom: 0;
+}
+
+.filterGroup h4 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.filterOptions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filterOptions label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.filterOptions label:hover {
+    color: var(--grey);
+}
+
+.filterOptions input[type="checkbox"] {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--black);
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) 0;
+    border-top: 1px solid var(--grey);
+}
+
+.emptyMessage {
+    text-align: center;
+    color: var(--grey);
+    font-size: 1.25rem;
+}
+
+.wardrobeList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: 100px;
+}
+
+.wardrobeList li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--grey);
+    transition: var(--transition);
+}
+
+.imageDate {
+    width: 100%;
+    font-size: 0.75rem;
+    position: absolute;
+    padding: var(--spacing-xs);
+    background: linear-gradient(0deg, rgba(34, 34, 34, 0) 0%, rgba(34, 34, 34, 0.5) 100%);
+}
+
+.imageWrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+}
+
+.imageWrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.itemTags {
+    bottom: 0;
+    padding: var(--spacing-xs);
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-xs) / 2);
+}
+
+.tag {
+    padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+    border-radius: var(--radius-xs);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.tag-main {
+    background: var(--black);
+    color: var(--white);
+}
+
+.additionalTag {
+    background: var(--white);
+    color: var(--black);
+}
+
+.addCloth, .addCloth a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--grey);
+}
+
+.addCloth svg {
+    width: 100px;
+}
+
+@media (max-width: 900px) {
+    .wardrobeList {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    .itemTags {
+        padding: calc(var(--spacing-xs) / 2);
+    }
+}
+@media (max-width: 520px) {
+    .wardrobeModal {
+        padding: 0;
+        align-items: flex-end;
+    }
+    .modal {
+        border-radius: 0;
+        width: 100%;
+        height: 80vh;
+    }
+    .modalFooter {
+        padding-bottom: 0;
+    }
+}

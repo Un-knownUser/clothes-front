@@ -1,0 +1,17 @@
+:root {
+    --spacing-xs: 10px;
+    --spacing-sm: 20px;
+    --spacing-md: 40px;
+
+    --radius-el: 50px;
+    --radius-md: 20px;
+    --radius-sm: 10px;
+    --radius-xs: 5px;
+
+    --white: #ffffff;
+    --black: #222222;
+    --grey: #AFB2BB;
+    --grey-light: #F2F3F8;
+
+    --transition: all .3s ease-in;
+}

@@ -1,0 +1,99 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.functionsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.functionsList li a {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    background: var(--grey-light);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs);
+}
+
+.functionsList li a svg {
+    width: 60px;
+    color: var(--black);
+    align-self: end;
+}
+
+.functionsList li a p {
+    color: var(--black);
+    font-size: 1.125rem;
+    text-align: left;
+}
+
+.recentlyAddList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.recentlyAddList li {
+    height: 150px;
+    border: 1px solid var(--grey);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.recentlyAddList li img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media screen and (max-width: 900px) {
+    .functionsList {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    .recentlyAddList {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    .recentlyAddList li {
+        height: 100px;
+    }
+}
+@media screen and (max-width: 600px) {
+    .functionsList li a p {
+        font-size: 0.875rem;
+    }
+    .functionsList li a svg {
+        width: 40px;
+    }
+    .recentlyAddList {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+    .recentlyAddList li {
+        height: 80px;
+    }
+}
+@media screen and (max-width: 480px) {
+    .recentlyAddList {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    .recentlyAddList::-webkit-scrollbar {
+        display: none;
+    }
+    .recentlyAddList li {
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        width: 100px;
+        height: 100px;
+    }
+}

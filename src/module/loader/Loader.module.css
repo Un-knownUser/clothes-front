@@ -1,0 +1,9 @@
+.loader {
+    animation: flip 1.5s ease-in-out infinite;
+    color: var(--grey);
+}
+
+@keyframes flip {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}

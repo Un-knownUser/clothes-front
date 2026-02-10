@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+body {
+    overflow-x: hidden;
+    font-family: "Inter", sans-serif;
+    height: 100%;
+    font-size: 16px;
+    font-weight: 400;
+    background: var(--white);
+    padding: var(--spacing-sm);
+    margin: 0 auto;
+    max-width: 1520px;
+}
+
+.flex-column-xs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+.flex-column-sm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+.flex-column-md {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/*Шрифты*/
+
+h1 {
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: var(--black);
+}
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--black);
+}
+h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--black);
+}
+h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--black);
+}
+
+@media screen and (max-width: 800px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    h2 {
+        font-size: 1.25rem;
+    }
+    h3 {
+        font-size: 1rem;
+    }
+}
+
+/*Шрифты*/
+
+/*Кнопки*/
+
+.btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+    border: none;
+    transition: var(--transition);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.btn:hover {
+    background: var(--grey-light);
+    color: var(--black);
+}
+.btn:disabled {
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--black);
+    color: var(--white);
+}
+.btn-secondary {
+    background: var(--grey);
+    color: var(--black);
+}
+.btn-auth {
+    background: var(--white);
+    color: var(--black);
+}
+
+/*Кнопки*/
+
+/*Inputs*/
+
+input, select, textarea {
+    width: 100%;
+    padding: var(--spacing-xs);
+    padding-top: 0;
+    background: none;
+    border-bottom: 2px solid var(--grey);
+    color: var(--white);
+    font-size: 1rem;
+}
+
+textarea {
+    resize: none;
+}
+
+.form-group {
+    position: relative;
+    padding: var(--spacing-xs) 0 0;
+    width: 100%;
+}
+
+.form-field {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--grey-light);
+    outline: 0;
+    color: var(--white);
+    padding: var(--spacing-xs);
+}
+
+.form-field::placeholder {
+    color: transparent;
+}
+
+.form-field:placeholder-shown ~ .form-label {
+    font-size: 1rem;
+    cursor: text;
+    top: var(--spacing-sm);
+    left: var(--spacing-xs);
+}
+
+.form-label {
+    position: absolute;
+    top: 0;
+    left: var(--spacing-xs);
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: var(--white);
+    pointer-events: none;
+}
+
+.form-field:focus ~ .form-label {
+    position: absolute;
+    top: 0;
+    display: block;
+}
+
+/* reset input */
+.form-field:required, .form-field:invalid {
+    box-shadow: none;
+}
+
+/*Inputs*/
+
+.modal-overlay {
+    padding: var(--spacing-sm);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading {
+    z-index: 1001;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
