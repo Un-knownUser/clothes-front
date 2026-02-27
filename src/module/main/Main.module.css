@@ -51,6 +51,108 @@
     object-fit: cover;
 }
 
+.controls input[type=range] {
+    height: 10px;
+    -webkit-appearance: none;
+    margin: var(--spacing-xs) 0;
+    width: 100%;
+    border: none;
+}
+.controls input[type=range]:focus {
+    outline: none;
+}
+.controls input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: var(--black);
+    border-radius: var(--radius-sm);
+}
+.controls input[type=range]::-webkit-slider-thumb {
+    height: 15px;
+    width: 15px;
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    border: 2px solid var(--black);
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -3px;
+}
+
+.outfitsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: 100px;
+}
+
+.outfitCard {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.perfect { border-left: 4px solid #10b981; }
+.good { border-left: 4px solid #f59e0b; }
+
+.outfitPreview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    justify-items: center;
+}
+
+.clothingThumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+.moreItems {
+    padding: var(--spacing-sm);
+    background: var(--grey);
+    color: var(--white);
+    border-radius: var(--radius-el);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.outfitInfo {
+    border-top: 1px solid var(--grey);
+    padding: var(--spacing-xs);
+    display: flex;
+    justify-content: space-between;
+}
+
+.tempBadge {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+    color: var(--white);
+    background: var(--black);
+    border-radius: var(--radius-xs);
+    padding: var(--spacing-xs);
+}
+.tempBadge svg {
+    width: 20px;
+    color: var(--white);
+}
+
+
+@media (max-width: 768px) {
+    .outfitsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 @media screen and (max-width: 900px) {
     .functionsList {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

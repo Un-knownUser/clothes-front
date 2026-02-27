@@ -13,7 +13,7 @@ export default function CreateOutfit() {
     const [categories, setCategories] = useState({});
     const [selectedItems, setSelectedItems] = useState({});
     const [outfitName, setOutfitName] = useState('');
-    const [outfitDescription, setOutfitDescription] = useState('');
+    const [outfitDeg, setOutfitDeg] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,6 +89,11 @@ export default function CreateOutfit() {
         return selectedItems[category]?.some(i => i.id === itemId) || false;
     };
 
+    const handleDegChange = (e) => {
+        const value = e.target.value;
+        setOutfitDeg(value);
+    };
+
     const handleSave = async () => {
         const allSelected = Object.values(selectedItems).flat();
 
@@ -116,7 +121,7 @@ export default function CreateOutfit() {
                 `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits`,
                 {
                     name: outfitName,
-                    description: outfitDescription,
+                    deg: outfitDeg,
                     clothing_ids: clothingIds
                 },
                 { headers }
@@ -142,14 +147,26 @@ export default function CreateOutfit() {
         <div className="flex-column-sm">
             <h2>Создать образ</h2>
 
-            <input
-                type="text"
-                placeholder="Название образа"
-                value={outfitName}
-                onChange={(e) => setOutfitName(e.target.value)}
-                className={styles.input}
-                maxLength={255}
-            />
+            <div className={styles.inputContainer}>
+                <input
+                    type="text"
+                    placeholder="Название образа"
+                    value={outfitName}
+                    onChange={(e) => setOutfitName(e.target.value)}
+                    className={styles.input}
+                    maxLength={255}
+                />
+                <input
+                    type="number"
+                    step="1"
+                    min="-40"
+                    max="50"
+                    placeholder="Предполагаемая температура (±5°C)"
+                    value={outfitDeg}
+                    onChange={handleDegChange}
+                    className={styles.input}
+                />
+            </div>
 
             {totalSelected > 0 && (
                 <div className={styles.infoBox}>
@@ -165,10 +182,12 @@ export default function CreateOutfit() {
                     return (
                         <div key={categoryKey} className={styles.category}>
                             <div className={styles.categoryHeader}>
-                                <h4>
-                                    {categoryLabel}
-                                    <span className={styles.optional}> (необязательно)</span>
-                                </h4>
+                                <div>
+                                    <h4 style={{ display: "block", position: "relative" }}>
+                                        {categoryLabel}
+                                        <span className={styles.optional}> (необязательно)</span>
+                                    </h4>
+                                </div>
                                 {categoryItems.length > 0 && (
                                     <span className={styles.count}>
                                         {categoryItems.length}

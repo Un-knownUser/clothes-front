@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
 import Link from "next/link";
 import Loader from "@/module/loader/Loader";
+import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 export default function Profile() {
     const [token, setToken] = useState("");
@@ -49,16 +51,6 @@ export default function Profile() {
 
     if (loading) {
         return <Loader height={100} size={80} position="absolute" />;
-    }
-
-    if (!token || !user) {
-        return (
-            <div className={styles.noAuth}>
-                <p>
-                    Не авторизован. <a href="/login">Войти</a>
-                </p>
-            </div>
-        );
     }
 
     return (

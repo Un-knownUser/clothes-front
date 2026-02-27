@@ -9,7 +9,7 @@ import axios from "axios";
 
 export default function Login() {
     const searchParams = useSearchParams();
-    const from = searchParams.get("from") || "/";
+    const from = searchParams.get("from") || "/main";
 
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');

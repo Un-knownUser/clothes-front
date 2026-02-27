@@ -1,6 +1,7 @@
 import Functions from "@/module/main/Functions";
 import RecentlyClothesAdded from "@/module/main/RecentlyClothesAdded";
 import {cookies} from "next/headers";
+import {WeatherOutfit} from "@/module/main/WeatherOutfit";
 
 export const metadata = {
     title: "Главная",
@@ -16,6 +17,7 @@ export default async function Page() {
             <h1>Привет, {username}</h1>
             <Functions />
             <RecentlyClothesAdded />
+            <WeatherOutfit />
         </div>
     );
 }

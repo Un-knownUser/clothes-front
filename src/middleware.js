@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-    const publicPaths = ["/login", "/register"];
+    const pathname = request.nextUrl.pathname;
+    const publicPaths = ["/login", "/register", "/"];
+
     if (publicPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
         return NextResponse.next();
     }
 
     const token = request.cookies.get("token")?.value;
+
+    if (pathname === '/' && token) {
+        return NextResponse.redirect(new URL('/main', request.url));
+    }
 
     if (!token) {
         const loginUrl = new URL("/login", request.url);

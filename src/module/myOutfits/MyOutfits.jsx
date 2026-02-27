@@ -8,6 +8,7 @@ import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import styles from './MyOutfits.module.css';
 import Loader from "@/module/loader/Loader";
+import Link from "next/link";
 
 export default function MyOutfits() {
     const [outfits, setOutfits] = useState([]);
@@ -90,6 +91,7 @@ export default function MyOutfits() {
             {outfits.length === 0 ? (
                 <div className={styles.emptyState}>
                     <p>У вас пока нет образов</p>
+                    <Link href="/outfits" className="btn btn-primary">Добавить</Link>
                 </div>
             ) : (
                 <div className={styles.outfitsLine}>
