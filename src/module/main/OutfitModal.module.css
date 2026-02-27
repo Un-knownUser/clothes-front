@@ -1,0 +1,69 @@
+.modal {
+    position: relative;
+    background: var(--white);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 800px;
+    overflow-y: scroll;
+    height: auto;
+    max-height: 90vh;
+}
+
+.modal.perfect { border-left: 4px solid #10b981; }
+.modal.good { border-left: 4px solid #f59e0b; }
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.zonesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.zoneGroup h4 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.zoneItems {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-xs);
+}
+
+.modalClothingImg {
+    width: 150px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--grey);
+}
+
+.outfitTemp {
+    position: sticky;
+    bottom: 0;
+    text-align: center;
+    padding: var(--spacing-sm);
+    background: var(--black);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    color: var(--white);
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+    justify-content: center;
+}
+
+.outfitTemp svg {
+    width: 40px;
+}
+.outfitTemp p {
+    font-size: 2rem;
+}
