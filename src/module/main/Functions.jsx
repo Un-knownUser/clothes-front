@@ -2,14 +2,14 @@
 
 import styles from "./Main.module.css";
 import Link from "next/link";
-import {CirclePlus, Shirt, ChartNoAxesCombined} from "lucide-react";
+import {CirclePlus, Shirt, ExternalLink} from "lucide-react";
 
 export default function Functions() {
 
     const functionsItems = [
         { name: "Добавить одежду", icon: <CirclePlus />, link: "/add" },
         { name: "Создать образ", icon: <Shirt />, link: "/outfits" },
-        { name: "Статистика", icon: <ChartNoAxesCombined />, link: "/stats" },
+        { name: "Публичные образы", icon: <ExternalLink />, link: "/public-outfits" },
     ]
 
     return (

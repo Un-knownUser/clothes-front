@@ -5,9 +5,10 @@ import {useEffect, useState} from "react";
 import Cookies from "js-cookie";
 import {useRouter} from "next/navigation";
 import axios from "axios";
-import { Filter, X, MoveUp, MoveDown, Plus } from "lucide-react";
+import { Filter, X, MoveUp, MoveDown, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Loader from "@/module/loader/Loader";
+import {toast} from "sonner";
 
 export default function Wardrobe() {
     const [clothes, setClothes] = useState([]);
@@ -15,6 +16,11 @@ export default function Wardrobe() {
     const [allTags, setAllTags] = useState({});
     const [loading, setLoading] = useState(true);
     const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [usedInOutfits, setUsedInOutfits] = useState([]);
 
     const [filters, setFilters] = useState({
         main: [],
@@ -103,6 +109,46 @@ export default function Wardrobe() {
         setFilteredClothes(result);
     }, [clothes, filters, sortBy, sortOrder]);
 
+    const checkClothingUsage = async (clothingId) => {
+        try {
+            const { data } = await axios.get(
+                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes/${clothingId}/outfits`,
+                { headers }
+            );
+            return data;
+        } catch (error) {
+            console.error("Ошибка проверки использования:", error);
+            return [];
+        }
+    };
+
+    const handleDeleteClick = async (item) => {
+        setItemToDelete(item);
+        const outfits = await checkClothingUsage(item.id);
+        setUsedInOutfits(outfits);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!itemToDelete) return;
+
+        setDeleteLoading(true);
+        try {
+            await axios.delete(
+                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes/${itemToDelete.id}`,
+                { headers }
+            );
+            toast.success('Одежда удалена');
+            fetchData();
+            setDeleteModalOpen(false);
+        } catch (error) {
+            console.error("Ошибка удаления:", error);
+            toast.error('Ошибка при удалении');
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
     const handleFilterChange = (group, tagId) => {
         setFilters(prev => {
             const currentGroup = prev[group];
@@ -166,6 +212,81 @@ export default function Wardrobe() {
                     </div>
                 </div>
             </div>
+
+            {deleteModalOpen && (
+                <div className={`modal-overlay ${styles.wardrobeModal}`} onClick={() => setDeleteModalOpen(false)}>
+                    <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h3>Удалить одежду?</h3>
+                            <button
+                                onClick={() => setDeleteModalOpen(false)}
+                                className="none-btn"
+                                disabled={deleteLoading}
+                            >
+                                <X />
+                            </button>
+                        </div>
+
+                        <div className={styles.modalBody}>
+                            <img
+                                className={styles.deleteImage}
+                                src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${itemToDelete.image_path}`}
+                                alt={itemToDelete?.name}
+                            />
+
+                            {usedInOutfits.length > 0 ? (
+                                <>
+                                    <div className={styles.warningText}>
+                                        <p>Эта одежда используется в <strong>{usedInOutfits.length}</strong> образе(ах)</p>
+                                        <p>Образы станут неполными после удаления одного из элементов.</p>
+                                    </div>
+                                    <ul className={styles.outfitsList}>
+                                        {usedInOutfits.map((outfit) => (
+                                            <li key={outfit.id} className={styles.outfitItem}>
+                                                <p>{outfit.name}</p>
+                                                <div className={styles.outfitClothes}>
+                                                    {outfit.clothing.map((clothingItem) => (
+                                                        <div
+                                                            key={clothingItem.id}
+                                                            className={`${styles.outfitClothesDiv} ${clothingItem.id === itemToDelete?.id && styles.deletingCloth}`}
+                                                        >
+                                                            <img
+                                                                src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${clothingItem.image_path}`}
+                                                                alt={clothingItem?.name}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <div className={styles.goodText}>
+                                    <p>Эта одежда не используется в образах.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={styles.modalFooter}>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setDeleteModalOpen(false)}
+                                disabled={deleteLoading}
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={confirmDelete}
+                                disabled={deleteLoading}
+                            >
+                                {deleteLoading ? 'Удаление...' : 'Удалить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isFilterModalOpen && (
                 <div className={`modal-overlay ${styles.wardrobeModal}`} onClick={() => setIsFilterModalOpen(false)}>
@@ -301,6 +422,13 @@ export default function Wardrobe() {
                                     </span>
                                 ))}
                             </div>
+                            <button
+                                className={styles.deleteBtn}
+                                onClick={() => handleDeleteClick(item)}
+                                title="Удалить"
+                            >
+                                <Trash2 className={styles.svg} size={18} />
+                            </button>
                         </li>
                     ))}
                     <li className={styles.addCloth}>

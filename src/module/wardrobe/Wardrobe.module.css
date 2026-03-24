@@ -82,6 +82,7 @@
 }
 
 .modalBody {
+    position: relative;
     overflow-y: auto;
     flex: 1;
 }
@@ -214,6 +215,96 @@
 .addCloth svg {
     width: 100px;
 }
+
+.deleteImage {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    max-width: 200px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+.goodText {
+    background: #10b981;
+}
+.warningText {
+    background: #f59e0b;
+}
+
+.goodText, .warningText {
+    margin-top: var(--spacing-sm);
+    width: 100%;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+}
+.goodText p, .warningText {
+    color: var(--white);
+    font-weight: 500;
+}
+
+.outfitsList {
+    margin-top: var(--spacing-sm);
+    overflow-y: auto;
+    padding: var(--spacing-xs);
+    background: var(--grey-light);
+    border-radius: var(--radius-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.outfitItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.outfitClothes {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.outfitClothesDiv {
+    overflow: hidden;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+}
+
+.deletingCloth {
+    border: 1px solid #b32e2e;
+    scale: 1.03;
+}
+
+.outfitClothes img {
+    max-width: 100px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+.deleteBtn {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: none;
+    color: var(--white);
+    background: var(--black);
+    border-radius: var(--radius-xs);
+    padding: calc(var(--spacing-xs) / 2);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.deleteBtn {
+    background: #b32e2e;
+}
+.deleteBtn:hover {
+    background: #d86d6d;
+}
+
 
 @media (max-width: 900px) {
     .wardrobeList {

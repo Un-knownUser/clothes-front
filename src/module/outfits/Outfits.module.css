@@ -205,6 +205,66 @@
     justify-content: flex-end;
 }
 
+.publicCheckbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    border: 1px solid var(--grey);
+}
+
+.checkboxInput {
+    display: none;
+}
+
+.checkboxCustom {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--grey);
+    border-radius: var(--radius-xs);
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.checkboxInput:checked + .checkboxCustom {
+    background: var(--black);
+    border-color: var(--black);
+}
+
+.checkboxCustom::after {
+    content: '';
+    position: absolute;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.checkboxInput:checked + .checkboxCustom::after {
+    opacity: 1;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-50%, -50%);
+    top: 45%;
+    left: 20%;
+}
+
+.checkboxLabel {
+    font-size: 0.875rem;
+    color: var(--black);
+    user-select: none;
+}
+
+.checkboxLabel small {
+    color: var(--grey);
+    font-size: 0.75rem;
+}
+
 @media (max-width: 900px) {
     .selectedItems {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

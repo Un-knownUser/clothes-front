@@ -12,6 +12,7 @@ import Loader from "@/module/loader/Loader";
 export default function CreateOutfit() {
     const [categories, setCategories] = useState({});
     const [selectedItems, setSelectedItems] = useState({});
+    const [isPublic, setIsPublic] = useState(false);
     const [outfitName, setOutfitName] = useState('');
     const [outfitDeg, setOutfitDeg] = useState('');
     const [loading, setLoading] = useState(true);
@@ -122,7 +123,8 @@ export default function CreateOutfit() {
                 {
                     name: outfitName,
                     deg: outfitDeg,
-                    clothing_ids: clothingIds
+                    clothing_ids: clothingIds,
+                    is_public: isPublic
                 },
                 { headers }
             );
@@ -161,11 +163,24 @@ export default function CreateOutfit() {
                     step="1"
                     min="-40"
                     max="50"
-                    placeholder="Предполагаемая температура (±5°C)"
+                    placeholder="Температура при которой можно носить (±5°C)"
                     value={outfitDeg}
                     onChange={handleDegChange}
                     className={styles.input}
                 />
+                <label className={styles.publicCheckbox}>
+                    <input
+                        type="checkbox"
+                        checked={isPublic}
+                        onChange={(e) => setIsPublic(e.target.checked)}
+                        className={styles.checkboxInput}
+                    />
+                    <span className={styles.checkboxCustom}></span>
+                    <p className={styles.checkboxLabel}>
+                        Публичная сборка<br/>
+                        <small>Будет видна всем пользователям</small>
+                    </p>
+                </label>
             </div>
 
             {totalSelected > 0 && (

@@ -7,8 +7,6 @@ import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
 import Link from "next/link";
 import Loader from "@/module/loader/Loader";
-import {router} from "next/client";
-import {useRouter} from "next/navigation";
 
 export default function Profile() {
     const [token, setToken] = useState("");

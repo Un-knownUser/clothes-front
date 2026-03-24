@@ -51,10 +51,17 @@
     object-fit: cover;
 }
 
+.filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+}
+
 .controls input[type=range] {
     height: 10px;
+    padding: 0;
     -webkit-appearance: none;
-    margin: var(--spacing-xs) 0;
+    margin-top: var(--spacing-xs);
     width: 100%;
     border: none;
 }
@@ -145,6 +152,24 @@
     color: var(--white);
 }
 
+.cityForm {
+    display: grid;
+    gap: var(--spacing-xs);
+    grid-template-columns: 1fr auto;
+}
+
+.input {
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--grey);
+    color: var(--black);
+}
+
+.error {
+    color: red;
+    font-size: 0.875rem;
+}
+
 
 @media (max-width: 768px) {
     .outfitsGrid {
@@ -176,6 +201,9 @@
     }
     .recentlyAddList li {
         height: 80px;
+    }
+    .filters {
+        grid-template-columns: 1fr;
     }
 }
 @media screen and (max-width: 480px) {

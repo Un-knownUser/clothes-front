@@ -1,0 +1,120 @@
+.outfitsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.outfitCard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    background: var(--white);
+    border: 1px solid var(--grey);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    transition: var(--transition);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--grey);
+}
+
+.tempBadge {
+    background: var(--black);
+    color: var(--white);
+    padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+    border-radius: var(--radius-xs);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.outfitClothing {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.outfitClothing img {
+    cursor: pointer;
+    width: 100px;
+    aspect-ratio: 1/1;
+    object-fit: contain;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--grey);
+}
+
+.outfitInfo {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.outfitAuthor {
+    color: var(--black);
+    font-size: 0.875rem;
+}
+
+.likeSection {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.likeBtn {
+    background: none;
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.likeBtn:hover {
+    background: var(--grey-light);
+}
+
+.likeBtn.liked {
+    color: #ef4444;
+}
+
+.likesCount {
+    font-weight: 600;
+    color: var(--grey);
+    font-size: 0.875rem;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.emptyState p {
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .outfitsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .container {
+        padding: 1rem 0.5rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+}

@@ -117,7 +117,7 @@ export default function MyOutfits() {
                             </div>
 
                             <div className={styles.outfitInfo}>
-                                <h4>{outfit.name}</h4>
+                                <h4>{outfit.name} {outfit.is_public ? "(Публичный)" : ""}</h4>
                                 <div className={styles.outfitMeta}>
                                     <span className={styles.count}>
                                         {outfit.clothing?.length || 0} {outfit.clothing?.length === 1 ? 'вещь' : 'вещей'}
