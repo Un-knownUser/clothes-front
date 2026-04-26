@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import styles from './Add.module.css';
 import TagModal from "./TagModal";
 import axios from "axios";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 
 export default function Add() {
     const [images, setImages] = useState([]);
@@ -16,7 +16,7 @@ export default function Add() {
     const [tagModalOpen, setTagModalOpen] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(-1);
 
-    const { token } = useAuth();
+    const token = Cookies.get("token");
     const router = useRouter();
 
     const handleFiles = useCallback((newFiles) => {

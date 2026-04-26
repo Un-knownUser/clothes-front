@@ -1,48 +1,116 @@
-.container {
-    min-height: calc(100vh - (var(--spacing-sm) + var(--spacing-sm)));
+.authContainer {
+    height: calc(100vh - var(--spacing-md));
+    max-width: 700px;
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    position: relative;
+}
+
+.authFormContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.authForm {
+    padding: var(--spacing-md);
+    background: var(--black);
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.authForm form h2 {
+    text-align: center;
+    color: var(--white);
+}
+
+.authButtonSwitch {
+    margin-top: var(--spacing-xs);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--white);
-}
-
-.card {
-    background: var(--black);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    width: 100%;
-    max-width: 500px;
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.card h1 {
-    color: var(--white);
-}
-
-.card form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.card form button {
-    width: 100%;
-}
-
-.footer {
+    gap: var(--spacing-xs);
     text-align: center;
-    font-size: 1rem;
+}
+.authButtonSwitch button {
+    font-weight: 300;
+    cursor: pointer;
+    color: var(--white);
+    transition: var(--transition);
+}
+.authButtonSwitch button:hover {
+    color: var(--grey);
+}
+
+@media screen and (max-width: 900px) {
+    .authContainer {
+        padding: var(--spacing-md);
+    }
+    .authFormContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+.otpForm {
+    text-align: center;
+}
+
+.otpForm p {
     color: var(--white);
 }
 
-.link {
-    color: var(--white);
+.otpContainer {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
 }
-.link:hover {
-    text-decoration: underline;
+
+.otpDisplayContainer {
+    display: flex;
+    gap: 5px;
+}
+
+.otpDisplay {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border: var(--white) 1px solid;
+    color: var(--white);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.otpDisplayActive {
+    border-color: var(--white);
+}
+
+.authLoader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+}
+.authLoader svg {
+    width: 80px;
+    color: var(--white);
 }

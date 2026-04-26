@@ -1,0 +1,52 @@
+.adminContainer {
+    display: flex;
+    min-height: 100vh;
+    background: var(--white);
+    color: var(--black);
+}
+
+.sidebar {
+    width: 300px;
+    color: var(--black);
+    display: flex;
+    flex-direction: column;
+}
+
+.nav {
+    position: sticky;
+    top: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-md);
+}
+
+.nav a {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    color: var(--black);
+    text-decoration: none;
+    transition: background 0.2s;
+    border-radius: var(--radius-sm);
+}
+
+.nav a:hover {
+    background: var(--grey);
+    color: var(--white);
+}
+.nav a.active {
+    background: var(--black);
+    color: var(--white);
+}
+
+.mainContent {
+    padding-left: var(--spacing-sm);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+}

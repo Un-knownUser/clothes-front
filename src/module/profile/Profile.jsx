@@ -44,7 +44,7 @@ export default function Profile() {
 
     const handleLogout = () => {
         Cookies.remove("token");
-        window.location.href = "/login";
+        window.location.href = "/auth";
     };
 
     if (loading) {
@@ -54,9 +54,6 @@ export default function Profile() {
     return (
         <div className="flex-column-sm">
             <div className={styles.header}>
-                <div className={styles.avatar}>
-                    <User size={64} />
-                </div>
                 <div className={styles.userInfo}>
                     <h2>{user.name || "Пользователь"}</h2>
                     <p>{user.email}</p>

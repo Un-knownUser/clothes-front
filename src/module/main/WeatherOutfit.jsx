@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useDebouncedCallback } from 'use-debounce';
-import { ThermometerSun } from 'lucide-react';
+import { ThermometerSun, MapPin, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import styles from './Main.module.css';
 import Loader from "@/module/loader/Loader";
 import OutfitModal from "@/module/main/OutfitModal";
+import {useDebouncedCallback} from "use-debounce";
 
-const ACCU_API_KEY = process.env.NEXT_PUBLIC_ACCU_API_KEY;
-const ACCU_BASE_URL = process.env.NEXT_PUBLIC_ACCU_BASE_URL || 'https://dataservice.accuweather.com';
+const WEATHER_API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
+const WEATHER_BASE_URL = process.env.NEXT_PUBLIC_WEATHER_API_URL || 'https://api.weatherapi.com/v1';
 
 export function WeatherOutfit({ initialTemp = 15 }) {
     const [currentTemp, setCurrentTemp] = useState(initialTemp);
@@ -21,110 +21,61 @@ export function WeatherOutfit({ initialTemp = 15 }) {
     const [sliderValue, setSliderValue] = useState(5);
     const [selectedOutfit, setSelectedOutfit] = useState(null);
 
-    const [city, setCity] = useState('Казань');
-    const [accuLoading, setAccuLoading] = useState(false);
-    const [accuError, setAccuError] = useState(null);
+    // Состояния для города
+    const [city, setCity] = useState('Москва');
+    const [showCitySelector, setShowCitySelector] = useState(false);
+    const [isEditingCity, setIsEditingCity] = useState(false);
+    const [weatherLoading, setWeatherLoading] = useState(false);
 
     const token = Cookies.get('token');
     const headers = { Authorization: `Bearer ${token}` };
 
-    const fetchCityLocationKey = async (cityName) => {
-        const { data } = await axios.get(
-            `${ACCU_BASE_URL}/locations/v1/cities/search`,
-            {
-                params: {
-                    apikey: ACCU_API_KEY,
-                    q: cityName,
-                    language: 'ru-ru'
-                }
-            }
-        );
-        if (!data || data.length === 0) {
-            throw new Error('Город не найден');
-        }
-        return data[0].Key;
-    };
-
-    const fetchCurrentTempByCity = async (cityName) => {
-        setAccuLoading(true);
-        setAccuError(null);
+    const fetchCurrentTempByCity = async (cityName, silent = false) => {
+        if (!silent) setWeatherLoading(true);
         try {
-            const locationKey = await fetchCityLocationKey(cityName);
-            const { data } = await axios.get(
-                `${ACCU_BASE_URL}/currentconditions/v1/${locationKey}`,
-                {
-                    params: {
-                        apikey: ACCU_API_KEY,
-                        details: true,
-                        language: 'ru-ru'
-                    }
-                }
-            );
-            if (!data || data.length === 0) {
-                throw new Error('Не удалось получить погоду');
-            }
+            const { data } = await axios.get(`${WEATHER_BASE_URL}/current.json`, {
+                params: { key: WEATHER_API_KEY, q: cityName, lang: 'ru' }
+            });
 
-            const tempC = data[0]?.Temperature?.Metric?.Value;
-            if (typeof tempC !== 'number') {
-                throw new Error('Некорректные данные температуры');
-            }
+            const tempC = Math.round(data?.current?.temp_c);
+            setCurrentTemp(tempC);
+            setCity(data.location.name); // Обновляем на официальное название из API
 
-            const rounded = Math.round(tempC);
-            setCurrentTemp(rounded);
-            toast.success(`Погода в ${cityName}: ${rounded}°C`);
+            if (typeof window !== 'undefined') {
+                window.localStorage.setItem('weather_city', data.location.name);
+            }
+            if (!silent) toast.success(`Погода обновлена: ${data.location.name}`);
+            setShowCitySelector(false);
+            setIsEditingCity(false);
         } catch (e) {
-            console.error(e);
-            const msg = e?.message || 'Ошибка загрузки погоды';
-            setAccuError(msg);
-            toast.error(msg);
+            toast.error('Город не найден');
         } finally {
-            setAccuLoading(false);
+            setWeatherLoading(false);
         }
     };
 
-    // --- Первый рендер: читаем город из localStorage и сразу дергаем погоду ---
     useEffect(() => {
-        if (typeof window === 'undefined') return;
-
         const savedCity = window.localStorage.getItem('weather_city');
         if (savedCity) {
             setCity(savedCity);
-            fetchCurrentTempByCity(savedCity);
+            fetchCurrentTempByCity(savedCity, true);
         } else {
-            setLoading(true);
-            fetchSuitableOutfits();
+            // Если города нет, показываем плавающее окошко подтверждения
+            setShowCitySelector(true);
+            fetchCurrentTempByCity(city, true); // Загружаем дефолтную Москву
         }
     }, []);
 
-    const handleCitySubmit = async (e) => {
-        e.preventDefault();
-        const trimmed = city.trim();
-        if (!trimmed) return;
-
-        if (typeof window !== 'undefined') {
-            window.localStorage.setItem('weather_city', trimmed);
-        }
-
-        await fetchCurrentTempByCity(trimmed);
-    };
-
-    const fetchSuitableOutfits = async (tolerance = tempTolerance) => {
-        setLoading(true);
+    const fetchSuitableOutfits = async (tolerance = tempTolerance, isBackground = false) => {
+        if (!isBackground) setLoading(true);
         try {
-            const { data } = await axios.get(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/weather`,
-                {
-                    headers,
-                    params: {
-                        suitable_temp: currentTemp,
-                        tolerance
-                    }
-                }
-            );
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/weather`, {
+                headers,
+                params: { suitable_temp: currentTemp, tolerance: tempTolerance }
+            });
             setSuitableOutfits(data);
         } catch (error) {
-            console.error('Ошибка загрузки образов:', error);
-            toast.error('Не удалось загрузить подходящие образы');
+            toast.error('Ошибка загрузки образов');
         } finally {
             setLoading(false);
         }
@@ -134,8 +85,14 @@ export function WeatherOutfit({ initialTemp = 15 }) {
         fetchSuitableOutfits();
     }, [currentTemp]);
 
+    const handleConfirmCity = () => {
+        window.localStorage.setItem('weather_city', city);
+        setShowCitySelector(false);
+        toast.success(`Ваш город — ${city}`);
+    };
+
     const debouncedFetch = useDebouncedCallback((tolerance) => {
-        fetchSuitableOutfits(tolerance);
+        fetchSuitableOutfits(tolerance, true);
     }, 300);
 
     const handleSliderChange = useCallback((e) => {
@@ -156,103 +113,96 @@ export function WeatherOutfit({ initialTemp = 15 }) {
         setSelectedOutfit(outfit);
     }, []);
 
-    const closeModal = useCallback(() => {
-        setSelectedOutfit(null);
-    }, []);
 
-    if (loading) {
-        return (
-            <div style={{ height: "100vh" }}>
-                <Loader height={20} size={80} position="relative" />
-            </div>
-        );
-    }
+    if (loading && !weatherLoading) return <div style={{ height: "100vh" }}><Loader height={20} size={80} position="relative" /></div>;
 
     return (
         <>
             <div className={styles.container}>
-                <h3>Образы по погоде ({currentTemp}°C)</h3>
-                <div className={styles.filters}>
-                    <form onSubmit={handleCitySubmit} className={styles.cityForm}>
-                        <input
-                            className={styles.input}
-                            type="text"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            placeholder="Введите город"
-                        />
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={accuLoading || !city.trim()}
-                        >
-                            {accuLoading ? 'Загрузка...' : 'Обновить'}
-                        </button>
-                        {accuError && <p className={styles.error}>{accuError}</p>}
-                    </form>
-
-                    <div className={styles.controls}>
-                        <label>
-                            Допуск температуры: <span>±{tempTolerance}°C</span>
-                            <input
-                                type="range"
-                                min="3"
-                                max="10"
-                                step="1"
-                                value={sliderValue}
-                                onChange={handleSliderChange}
-                            />
-                        </label>
+                {/* Виджет подтверждения города */}
+                {showCitySelector && (
+                    <div className={styles.cityPopover}>
+                        {!isEditingCity ? (
+                            <div className={styles.popoverContent}>
+                                <p>Ваш город <strong>{city}</strong>?</p>
+                                <div className={styles.popoverActions}>
+                                    <button onClick={handleConfirmCity} className={styles.confirmBtn}>Да</button>
+                                    <button onClick={() => setIsEditingCity(true)} className={styles.changeBtn}>Нет, изменить</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={(e) => { e.preventDefault(); fetchCurrentTempByCity(city); }} className={styles.popoverForm}>
+                                <input
+                                    autoFocus
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    placeholder="Введите город"
+                                />
+                                <div className={styles.popoverActions}>
+                                    <button type="submit" className={styles.confirmBtn}>Готово</button>
+                                    <button type="button" className={styles.changeBtn} onClick={() => setIsEditingCity(false)}>Отмена</button>
+                                </div>
+                            </form>
+                        )}
                     </div>
+                )}
+
+                <div className={styles.headerRow}>
+                    <h3>Образы под температуру {currentTemp}°C</h3>
+                    <button className={styles.locationBadge} onClick={() => setShowCitySelector(!showCitySelector)}>
+                        <MapPin size={20} /> {city}
+                    </button>
                 </div>
 
+                <div className={styles.controls}>
+                    <label htmlFor="temp">Допуск: ±{tempTolerance}°C</label>
+                    <input
+                        type="range"
+                        min="3"
+                        max="10"
+                        name="temp"
+                        value={sliderValue}
+                        onChange={handleSliderChange}
+                    />
+                </div>
 
-                {suitableOutfits.length === 0 ? (
-                    <p>У вас пока нет образов</p>
-                ) : (
-                    <>
-                        <div className={styles.outfitsGrid}>
-                            {suitableOutfits.map((outfit) => (
-                                <div
-                                    key={outfit.id}
-                                    className={`${styles.outfitCard} ${styles[getTempStatus(outfit.deg || 0)]}`}
-                                    onClick={() => handleOutfitClick(outfit)}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <div className={styles.outfitPreview}>
-                                        {(outfit.clothing || []).slice(0, 3).map((item) => (
-                                            <img
-                                                key={item.id}
-                                                src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
-                                                alt={item.name || 'Одежда'}
-                                                className={styles.clothingThumb}
-                                            />
-                                        ))}
-                                        {outfit.clothes_count > 4 && (
-                                            <span className={styles.moreItems}>
-                                                +{outfit.clothes_count - 4}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className={styles.outfitInfo}>
-                                        <h3>{outfit.name}</h3>
-                                        <div className={styles.tempBadge}>
-                                            <ThermometerSun />
-                                            {outfit.deg || 'N/A'}°C
-                                        </div>
-                                    </div>
+                <div className={styles.outfitsGrid}>
+                    {suitableOutfits.length ===0 && <p>Ничего не найдено</p>}
+                    {suitableOutfits.map((outfit) => (
+                        <div
+                            key={outfit.id}
+                            className={`${styles.outfitCard} ${styles[getTempStatus(outfit.deg || 0)]}`}
+                            onClick={() => handleOutfitClick(outfit)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className={styles.outfitPreview}>
+                                {(outfit.clothing || []).slice(0, 3).map((item) => (
+                                    <img
+                                        key={item.id}
+                                        src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                        alt={item.name || 'Одежда'}
+                                        className={styles.clothingThumb}
+                                    />
+                                ))}
+                                {outfit.clothes_count > 3 && (
+                                    <span className={styles.moreItems}>
+                                        +{outfit.clothes_count - 3}
+                                    </span>
+                                )}
+                            </div>
+                            <div className={styles.outfitInfo}>
+                                <h3>{outfit.name}</h3>
+                                <div className={styles.tempBadge}>
+                                    <ThermometerSun size={16} />
+                                    {outfit.deg || '0'}°C
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </>
-                )}
+                    ))}
+                </div>
             </div>
-            <OutfitModal
-                outfit={selectedOutfit}
-                isOpen={!!selectedOutfit}
-                onClose={closeModal}
-                status={getTempStatus(selectedOutfit?.deg || 0)}
-            />
+
+            <OutfitModal outfit={selectedOutfit} isOpen={!!selectedOutfit} onClose={() => setSelectedOutfit(null)} />
         </>
     );
 }

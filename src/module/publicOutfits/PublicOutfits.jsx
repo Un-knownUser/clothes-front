@@ -1,12 +1,8 @@
 'use client';
-import {useState, useEffect, useCallback} from 'react';
-import { Heart, HeartOff } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Heart, HeartOff, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
-import Lightbox from 'yet-another-react-lightbox';
-import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
-import 'yet-another-react-lightbox/styles.css';
 import Loader from "@/module/loader/Loader";
 import styles from './PublicOutfits.module.css';
 
@@ -15,27 +11,41 @@ export default function PublicOutfits() {
     const [loading, setLoading] = useState(true);
     const [userLikes, setUserLikes] = useState(new Set());
 
-    const [openIndex, setOpenIndex] = useState(-1);
+    // Состояние модалки и комментариев
+    const [selectedOutfit, setSelectedOutfit] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
+    const [isCommentsLoading, setIsCommentsLoading] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+
+    const commentsEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
         loadUserLikes();
         fetchPublicOutfits();
     }, []);
 
+    useEffect(() => {
+        if (comments.length > 0) scrollToBottom();
+    }, [comments]);
+
     const loadUserLikes = async () => {
         const token = Cookies.get('token');
         if (!token) return;
-
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/user-liked-outfits`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
-                const likedOutfits = await res.json();
-                setUserLikes(new Set(likedOutfits.map(id => id)));
+                const likedIds = await res.json();
+                setUserLikes(new Set(likedIds));
             }
         } catch (error) {
-            console.error('Ошибка загрузки лайков:', error);
+            console.error('Ошибка лайков:', error);
         }
     };
 
@@ -45,117 +55,180 @@ export default function PublicOutfits() {
             const data = await res.json();
             setOutfits(data.data || []);
         } catch (error) {
-            console.error('Ошибка загрузки:', error);
+            toast.error('Ошибка загрузки ленты');
         } finally {
             setLoading(false);
         }
     };
 
-    const toggleLike = async (outfitId) => {
-        const token = Cookies.get('token');
-        if (!token) {
-            toast.error('Войдите в аккаунт');
-            return;
+    const fetchComments = async (outfitId) => {
+        setIsCommentsLoading(true);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${outfitId}/comments`);
+            const data = await res.json();
+            setComments(data);
+        } catch (e) {
+            toast.error("Не удалось загрузить комментарии");
+        } finally {
+            setIsCommentsLoading(false);
         }
+    };
+
+    const handleOpenDetails = (outfit) => {
+        setSelectedOutfit(outfit);
+        fetchComments(outfit.id);
+    };
+
+    const toggleLike = async (e, outfitId) => {
+        e.stopPropagation(); // Чтобы не открывалась модалка при клике на лайк
+        const token = Cookies.get('token');
+        if (!token) return toast.error('Войдите в аккаунт');
 
         const isLiked = userLikes.has(outfitId);
-        const method = isLiked ? 'DELETE' : 'POST';
-        const url = `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${outfitId}/like`;
-
         try {
-            const res = await fetch(url, {
-                method,
+            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${outfitId}/like`, {
+                method: isLiked ? 'DELETE' : 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             if (res.ok) {
                 setUserLikes(prev => {
                     const newSet = new Set(prev);
-                    if (isLiked) {
-                        newSet.delete(outfitId);
-                    } else {
-                        newSet.add(outfitId);
-                    }
+                    isLiked ? newSet.delete(outfitId) : newSet.add(outfitId);
                     return newSet;
                 });
-                toast.success(isLiked ? 'Лайк убран' : 'Лайк добавлен');
+                // Оптимистичное обновление счетчика в локальном стейте
+                setOutfits(prev => prev.map(o =>
+                    o.id === outfitId
+                        ? { ...o, likes_count: isLiked ? o.likes_count - 1 : o.likes_count + 1 }
+                        : o
+                ));
             }
         } catch (error) {
-            toast.error('Ошибка лайка');
+            toast.error('Ошибка соединения');
         }
     };
 
-    const openLightbox = useCallback((outfitIndex) => {
-        setOpenIndex(outfitIndex);
-    }, []);
+    const handleSendComment = async () => {
+        const token = Cookies.get('token');
+        if (!token) return toast.error("Войдите, чтобы комментировать");
+        if (!newComment.trim() || isSending) return;
 
-    const closeLightbox = () => {
-        setOpenIndex(-1);
+        setIsSending(true);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${selectedOutfit.id}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: newComment })
+            });
+            if (res.ok) {
+                const savedComment = await res.json();
+                setComments(prev => [...prev, savedComment]);
+                setNewComment("");
+            }
+        } catch (e) {
+            toast.error("Ошибка отправки");
+        } finally {
+            setIsSending(false);
+        }
     };
 
-    if (loading) {
-        return <Loader height={100} size={80} position="absolute" />;
-    }
+    if (loading) return <Loader height={100} size={80} position="absolute" />;
 
     return (
         <div className="flex-column-sm">
             <h2>Публичные сборки</h2>
-            <ul className={styles.outfitsList}>
-                {outfits.map((outfit, outfitIndex) => (
-                    <li key={outfit.id} className={styles.outfitCard}>
+
+            <div className={styles.outfitsList}>
+                {outfits.map((outfit) => (
+                    <div key={outfit.id} className={styles.outfitCard} onClick={() => handleOpenDetails(outfit)}>
                         <div className={styles.cardHeader}>
-                            <h3>{outfit.name}</h3>
-                            <span className={styles.tempBadge}>({outfit.deg}°C)</span>
+                            <h3>{outfit.name} <span className={styles.temp}>({outfit.deg}°C)</span></h3>
                         </div>
-                        <div className={styles.outfitClothing}>
-                            {outfit.clothing.map((item) => (
+
+                        <div className={styles.imagePreview}>
+                            {outfit.clothing.slice(0, 3).map((item, idx) => (
                                 <img
                                     key={item.id}
                                     src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
-                                    alt={item.name}
-                                    className={styles.clothingImage}
-                                    onClick={() => openLightbox(outfitIndex)}
+                                    alt=""
                                 />
                             ))}
+                            {outfit.clothing.length > 3 && (
+                                <div className={styles.moreBadge}>+{outfit.clothing.length - 3}</div>
+                            )}
                         </div>
-                        <div className={styles.outfitInfo}>
-                            <div className={styles.outfitAuthor}>Автор: {outfit.user.name}</div>
-                            <div className={styles.likeSection}>
-                                <button
-                                    onClick={() => toggleLike(outfit.id)}
-                                    className={`${styles.likeBtn} ${userLikes.has(outfit.id) ? styles.liked : ''}`}
-                                    title={userLikes.has(outfit.id) ? 'Убрать лайк' : 'Лайкнуть'}
-                                >
-                                    {userLikes.has(outfit.id) ?
-                                        <HeartOff size={20} /> :
-                                        <Heart size={20} />
-                                    }
-                                </button>
+
+                        <div className={styles.cardFooter}>
+                            <span className={styles.outfitAuthor}>@{outfit.user.name}</span>
+                            <div className={styles.likeSection} onClick={(e) => toggleLike(e, outfit.id)}>
+                                {userLikes.has(outfit.id) ? <HeartOff size={18} color="#ff4d4d" /> : <Heart size={18} />}
                                 <span className={styles.likesCount}>{outfit.likes_count}</span>
                             </div>
                         </div>
-                    </li>
+                    </div>
                 ))}
-            </ul>
+            </div>
 
-            {openIndex >= 0 && outfits[openIndex] && (
-                <Lightbox
-                    open={true}
-                    close={closeLightbox}
-                    slides={outfits[openIndex].clothing.map(item => ({
-                        src: `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`,
-                        title: item.name,
-                        width: 800,
-                        height: 600
-                    }))}
-                    index={0}
-                    plugins={[Zoom, Thumbnails]}
-                />
-            )}
+            {/* Модальное окно деталей */}
+            {selectedOutfit && (
+                <div className="modal-overlay" onClick={() => setSelectedOutfit(null)}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <button onClick={() => setSelectedOutfit(null)} className={`none-btn ${styles.close}`}>
+                            <X />
+                        </button>
+                        <div className={styles.modalGrid}>
+                            <div className={styles.modalGallery}>
+                                {selectedOutfit.clothing.map(item => (
+                                    <img
+                                        key={item.id}
+                                        src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                        alt={item.name}
+                                    />
+                                ))}
+                            </div>
 
-            {outfits.length === 0 && (
-                <div className={styles.emptyState}>
-                    <p>Публичных сборок пока нет</p>
+                            <div className={styles.modalSidebar}>
+                                <div className={styles.sidebarHeader}>
+                                    <h3>{selectedOutfit.name}</h3>
+                                    <p className={styles.outfitAuthor}>Автор: {selectedOutfit.user.name}</p>
+                                </div>
+
+                                <div className={styles.commentsList}>
+                                    {isCommentsLoading ? <Loader size={30} /> : (
+                                        comments.map(c => (
+                                            <div key={c.id} className={styles.comment}>
+                                                <span className={styles.commentUser}>{c.user.name}</span>
+                                                <p className={styles.commentText}>{c.content}</p>
+                                                <span className={styles.commentDate}>
+                                                    {new Date(c.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        ))
+                                    )}
+                                    <div ref={commentsEndRef} />
+                                </div>
+
+                                <div className={styles.commentInputWrapper}>
+                                    <div className={styles.commentInput}>
+                                        <input
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            placeholder="Написать комментарий..."
+                                            onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
+                                            disabled={isSending}
+                                        />
+                                        <button onClick={handleSendComment} disabled={isSending}>
+                                            <Send size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

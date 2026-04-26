@@ -1,118 +1,167 @@
-"use client";
-
-import { useState } from 'react';
-import Link from 'next/link';
-import styles from './Auth.module.css';
-import {useAuth} from "@/contexts/AuthContext";
-import {useRouter} from "next/navigation";
+import { useState } from "react";
 import axios from "axios";
+import styles from "./Auth.module.css";
+import Loader from "@/module/loader/Loader";
+import { toast } from "sonner";
 
-export default function Register() {
+export default function Register({ onSwitch }) {
     const [formData, setFormData] = useState({
-        username: '',
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: ''
+        username: "",
+        name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
     });
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
-    const { login } = useAuth();
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const validateUsername = (username) => {
+        const usernameRegex = /^[a-z0-9]+$/;
+        return usernameRegex.test(username);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+
+        if (name === "username" && value) {
+            if (!validateUsername(value)) {
+                toast.error(
+                    "Имя пользователя должно содержать только маленькие латинские буквы и цифры без пробелов и дефисов",
+                    {
+                        className: "toast-error",
+                        id: "username-validation",
+                    }
+                );
+            }
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        if (!Object.values(formData).every(Boolean)) return setError('Заполните все поля');
-        if (formData.password !== formData.password_confirmation) return setError('Пароли не совпадают');
+        setError(null);
+        setLoading(true);
 
-        setIsLoading(true);
+        if (!validateUsername(formData.username)) {
+            toast.error(
+                "Имя пользователя должно содержать только маленькие латинские буквы и цифры без пробелов и дефисов",
+                {
+                    className: "toast-error",
+                    id: "username-validation",
+                }
+            );
+            setLoading(false);
+            return;
+        }
+
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/register`, formData);
-            login(res.data.token, res.data.user);
-            router.push('/');
-        } catch {
-            setError('Ошибка регистрации');
+            await axios.post(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/register`, formData, {
+                headers: { "Content-Type": "application/json" },
+            });
+
+            toast.success("Успешная регистрация!", {
+                className: "toast-success",
+            });
+
+            onSwitch();
+        } catch (err) {
+            if (err.response?.data?.errors) {
+                Object.keys(err.response.data.errors).forEach((field) => {
+                    err.response.data.errors[field].forEach((message, index) => {
+                        toast.error(message, {
+                            className: "toast-error",
+                            id: `${field}-${index}`,
+                        });
+                    });
+                });
+            } else {
+                toast.error(err.response?.data?.message || "Произошла ошибка при регистрации", {
+                    className: "toast-error",
+                });
+            }
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.card}>
-                <h1>Регистрация</h1>
-                <form onSubmit={handleSubmit}>
+        <>
+            <div className={styles.authForm}>
+                <form onSubmit={handleSubmit} className="flex-column-sm">
+                    <h2>Регистрация</h2>
                     <div className="form-group field">
                         <input
-                            type="input"
-                            value={formData.username}
-                            onChange={(e) => setFormData({...formData, username: e.target.value})}
                             className="form-field"
-                            placeholder="Логин"
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            placeholder="Имя пользователя"
                             required
-                            disabled={isLoading}
                         />
-                        <label htmlFor="name" className="form-label">Логин</label>
+                        <label htmlFor="username" className="form-label">Имя пользователя</label>
                     </div>
                     <div className="form-group field">
                         <input
-                            type="input"
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
                             className="form-field"
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
                             placeholder="Имя"
                             required
-                            disabled={isLoading}
                         />
                         <label htmlFor="name" className="form-label">Имя</label>
                     </div>
                     <div className="form-group field">
                         <input
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
                             className="form-field"
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
                             placeholder="Почта"
                             required
-                            disabled={isLoading}
                         />
-                        <label htmlFor="name" className="form-label">Почта</label>
+                        <label htmlFor="email" className="form-label">Почта</label>
                     </div>
                     <div className="form-group field">
                         <input
-                            type="password"
-                            value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
                             className="form-field"
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
                             placeholder="Пароль"
                             required
-                            disabled={isLoading}
                         />
-                        <label htmlFor="name" className="form-label">Пароль</label>
+                        <label htmlFor="password" className="form-label">Пароль</label>
                     </div>
                     <div className="form-group field">
                         <input
-                            type="password"
-                            value={formData.password_confirmation}
-                            onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
                             className="form-field"
+                            type="password"
+                            name="password_confirmation"
+                            value={formData.password_confirmation}
+                            onChange={handleChange}
                             placeholder="Подтвердите пароль"
                             required
-                            disabled={isLoading}
                         />
-                        <label htmlFor="name" className="form-label">Подтвердите пароль</label>
+                        <label htmlFor="password_confirmation" className="form-label">Подтвердите пароль</label>
                     </div>
-
-                    {error && <p>{error}</p>}
-                    <button type="submit" className="btn" disabled={isLoading}>
-                        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                    <button type="submit" className="btn btn-secondary" disabled={loading}>
+                        {loading ? "Загрузка..." : "Регистрация"}
                     </button>
                 </form>
-                <p className={styles.footer}>
-                    Уже есть аккаунт? <Link href="/login" className={styles.link}>Войти</Link>
-                </p>
+                <div className={styles.authButtonSwitch}>
+                    <button onClick={onSwitch} className="none-btn">Или вход</button>
+                </div>
+                {loading && (
+                    <div className={styles.authLoader}>
+                        <Loader />
+                    </div>
+                )}
             </div>
-        </div>
+        </>
     );
 }

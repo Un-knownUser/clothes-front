@@ -57,12 +57,18 @@
     gap: var(--spacing-sm);
 }
 
+.controls {
+    display: flex;
+    flex-direction: column;
+}
+
 .controls input[type=range] {
     height: 10px;
     padding: 0;
     -webkit-appearance: none;
     margin-top: var(--spacing-xs);
-    width: 100%;
+    max-width: 100%;
+    width: 400px;
     border: none;
 }
 .controls input[type=range]:focus {
@@ -226,4 +232,94 @@
         width: 100px;
         height: 100px;
     }
+}
+
+
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.locationBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: var(--white);
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: 1px solid var(--black);
+    transition: 0.2s;
+}
+
+.locationBadge:hover {
+    background: var(--black);
+    color: var(--white);
+}
+
+/* Стили самого окошка */
+.cityPopover {
+    position: fixed;
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background: var(--white);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    z-index: 100;
+    width: 300px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.popoverContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.popoverContent p {
+    font-size: 1rem;
+    color: var(--black);
+}
+
+.popoverActions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.confirmBtn {
+    background: #22c55e;
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.changeBtn {
+    background: var(--grey-light);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.popoverForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.popoverForm input {
+    color: var(--black);
+    padding: var(--spacing-xs);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-sm);
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

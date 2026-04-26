@@ -1,0 +1,220 @@
+.container {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--black);
+    margin-bottom: 100px;
+}
+
+.toolbar {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+}
+
+.input, .select {
+    padding: var(--spacing-xs);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    color: var(--black);
+    outline: none;
+}
+.select {
+    max-width: 300px;
+}
+
+.btnAdd {
+    background: #10b981;
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.table th {
+    background: var(--grey-light);
+    padding: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--black);
+    border-bottom: 1px solid var(--black);
+    cursor: pointer;
+    user-select: none;
+}
+
+.table th:hover {
+    background: var(--grey);
+}
+
+.table td {
+    padding: var(--spacing-xs);
+    border-bottom: 1px solid var(--grey-light);
+    color: var(--black);
+}
+
+.table tr:hover {
+    background: var(--grey-light);
+}
+
+.center {
+    text-align: center;
+    padding: var(--spacing-sm);
+    color: var(--grey);
+}
+
+.badge {
+    background: var(--black);
+    color: var(--white);
+    padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.btnEdit {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: var(--spacing-xs);
+}
+
+.btnDelete {
+    background: #dc2626;
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: var(--spacing-xs);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.editingRow td {
+    background-color: #f0fdf4;
+}
+
+.editInput, .editSelect {
+    padding: var(--spacing-xs);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    color: var(--black);
+    outline: none;
+}
+
+.actionCells {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.btnSave {
+    background: #22c55e;
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.btnCancelEdit {
+    background: #ef4444;
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+/* --- Модальное окно --- */
+
+.modalContent {
+    background: var(--white);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    width: 100%;
+    max-width: 400px;
+    animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    color: var(--black);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-xs) / 2);
+}
+
+.formGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--grey);
+}
+
+.formGroup input, .formGroup select {
+    padding: var(--spacing-xs);
+    border: 1px solid var(--black);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    color: var(--black);
+    outline: none;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+}

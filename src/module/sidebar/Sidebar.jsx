@@ -18,7 +18,7 @@ export default function Sidebar() {
         setIsModalOpen(false);
     };
 
-    if (pathname === '/' || pathname === '/login' || pathname === '/register') {
+    if (pathname === '/' || pathname === '/auth') {
         return null;
     }
 
