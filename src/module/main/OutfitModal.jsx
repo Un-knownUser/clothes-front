@@ -37,7 +37,7 @@ export default function OutfitModal({ outfit, isOpen, onClose, status }) {
                                             {items.map((item) => (
                                                 <div key={item.id}>
                                                     <img
-                                                        src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                                         alt={item.name || 'Одежда'}
                                                         className={styles.modalClothingImg}
                                                     />

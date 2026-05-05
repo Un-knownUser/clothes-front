@@ -55,7 +55,7 @@ export default function Register({ onSwitch }) {
         }
 
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/register`, formData, {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, formData, {
                 headers: { "Content-Type": "application/json" },
             });
 

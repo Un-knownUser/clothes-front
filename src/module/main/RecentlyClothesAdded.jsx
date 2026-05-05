@@ -23,7 +23,7 @@ export default function RecentlyClothesAdded() {
             setLoading(true);
             setError(null);
             const headers = {Authorization: `Bearer ${token}`};
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes/recent`, {headers});
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/clothes/recent`, {headers});
             setRecentlyAdded(res.data.data || []);
             setRecentlyCount(res.data.total || null);
         } catch (err) {
@@ -50,7 +50,7 @@ export default function RecentlyClothesAdded() {
                         {recentlyAdded.map((item) => (
                             <li key={item.id}>
                                 <img
-                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                     alt={item.name}
                                 />
                             </li>

@@ -69,7 +69,7 @@ export function WeatherOutfit({ initialTemp = 15 }) {
     const fetchSuitableOutfits = async (tolerance = tempTolerance, isBackground = false) => {
         if (!isBackground) setLoading(true);
         try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/weather`, {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits/weather`, {
                 headers,
                 params: { suitable_temp: currentTemp, tolerance: tempTolerance }
             });
@@ -179,7 +179,7 @@ export function WeatherOutfit({ initialTemp = 15 }) {
                                 {(outfit.clothing || []).slice(0, 3).map((item) => (
                                     <img
                                         key={item.id}
-                                        src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                         alt={item.name || 'Одежда'}
                                         className={styles.clothingThumb}
                                     />

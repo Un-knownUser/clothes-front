@@ -26,7 +26,7 @@ export default function TagModal({ isOpen, onClose, imageIndex, imageName, onSav
     const fetchGroupTags = useCallback(async (groupKey) => {
         if (groups[groupKey]) return;
         try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/tags`, {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`, {
                 params: { group: groupKey }
             });
             setGroups(prev => ({ ...prev, [groupKey]: data }));
@@ -42,7 +42,7 @@ export default function TagModal({ isOpen, onClose, imageIndex, imageName, onSav
         }
         try {
             setSearchLoading(true);
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/tags`, {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`, {
                 params: { search: term.trim() }
             });
             setGroups(prev => ({ ...prev, all: data }));

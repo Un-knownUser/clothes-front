@@ -38,7 +38,7 @@ export default function CreateOutfit() {
     const fetchClothing = async () => {
         try {
             const { data } = await axios.get(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/clothing-categories`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/outfits/clothing-categories`,
                 { headers }
             );
             setCategories(data);
@@ -119,7 +119,7 @@ export default function CreateOutfit() {
             const clothingIds = allSelected.map(item => item.id);
 
             await axios.post(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/outfits`,
                 {
                     name: outfitName,
                     deg: outfitDeg,
@@ -216,7 +216,7 @@ export default function CreateOutfit() {
                                         {categoryItems.map(item => (
                                             <div key={item.id} className={styles.selectedItem}>
                                                 <img
-                                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                                     alt={item.name}
                                                 />
                                                 <button
@@ -281,7 +281,7 @@ export default function CreateOutfit() {
                                         >
                                             <div className={styles.modalItemImage}>
                                                 <img
-                                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                                     alt={item.name}
                                                 />
                                                 {isSelected(activeModalCategory, item.id) && (

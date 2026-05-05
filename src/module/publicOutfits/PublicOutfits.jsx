@@ -38,7 +38,7 @@ export default function PublicOutfits() {
         const token = Cookies.get('token');
         if (!token) return;
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/user-liked-outfits`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user-liked-outfits`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -52,7 +52,7 @@ export default function PublicOutfits() {
 
     const fetchPublicOutfits = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/public-outfits`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public-outfits`);
             const data = await res.json();
             setOutfits(data.data || []);
         } catch (error) {
@@ -65,7 +65,7 @@ export default function PublicOutfits() {
     const fetchComments = async (outfitId) => {
         setIsCommentsLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${outfitId}/comments`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits/${outfitId}/comments`);
             const data = await res.json();
             setComments(data);
         } catch (e) {
@@ -87,7 +87,7 @@ export default function PublicOutfits() {
 
         const isLiked = userLikes.has(outfitId);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${outfitId}/like`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits/${outfitId}/like`, {
                 method: isLiked ? 'DELETE' : 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -117,7 +117,7 @@ export default function PublicOutfits() {
 
         setIsSending(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${selectedOutfit.id}/comments`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits/${selectedOutfit.id}/comments`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -154,7 +154,7 @@ export default function PublicOutfits() {
                             {outfit.clothing.slice(0, 3).map((item, idx) => (
                                 <img
                                     key={item.id}
-                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                     alt=""
                                 />
                             ))}
@@ -186,7 +186,7 @@ export default function PublicOutfits() {
                                 {selectedOutfit.clothing.map(item => (
                                     <img
                                         key={item.id}
-                                        src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                         alt={item.name}
                                     />
                                 ))}

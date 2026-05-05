@@ -71,7 +71,7 @@ export default function Add() {
             });
 
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/clothes`,
                 formData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

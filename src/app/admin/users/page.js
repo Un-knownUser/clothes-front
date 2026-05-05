@@ -29,7 +29,7 @@ export default function UsersAdminPage() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/users`, {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`, {
                 headers,
                 params: { page, search, role: roleFilter, sort_by: sortBy, sort_dir: sortDir }
             });
@@ -80,7 +80,7 @@ export default function UsersAdminPage() {
 
     const handleEditSave = async (id) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/users/${id}`,
+            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${id}`,
                 { role: editRole },
                 { headers }
             );

@@ -30,7 +30,7 @@ export default function MyOutfits() {
     const fetchOutfits = async () => {
         try {
             const { data } = await axios.get(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/outfits`,
                 { headers }
             );
             setOutfits(data);
@@ -45,7 +45,7 @@ export default function MyOutfits() {
     const handleDelete = async (id) => {
         try {
             await axios.delete(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits/${id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/outfits/${id}`,
                 { headers }
             );
             setOutfits(prev => prev.filter(o => o.id !== id));
@@ -103,7 +103,7 @@ export default function MyOutfits() {
                                         {outfit.clothing.map(item => (
                                             <div key={item.id} className={styles.clothingItem}>
                                                 <img
-                                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                                     alt={item.name}
                                                 />
                                             </div>

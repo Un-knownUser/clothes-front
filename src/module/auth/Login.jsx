@@ -42,7 +42,7 @@ export default function Login({ onSwitch }) {
 
             try {
                 const { data } = await axios.post(
-                    `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/verify-otp`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/verify-otp`,
                     { email: formData.email, otp_code: otpCode },
                     { headers: { "Content-Type": "application/json" }, withCredentials: true }
                 );
@@ -88,7 +88,7 @@ export default function Login({ onSwitch }) {
         setLoading(true);
 
         try {
-            const { data } = await axios.post(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/login`, formData, {
+            const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, formData, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true,
             });

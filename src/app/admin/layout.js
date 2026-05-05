@@ -26,7 +26,7 @@ export default function AdminLayout({ children }) {
         const verifyAdmin = async () => {
             try {
                 // Запрашиваем данные текущего пользователя
-                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/user`, {
+                const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

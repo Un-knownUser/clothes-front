@@ -28,10 +28,10 @@ export default function Profile() {
         const headers = { Authorization: `Bearer ${savedToken}` };
 
         Promise.all([
-            axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/user`, { headers }),
-            axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes`, { headers }),
-            axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits`, { headers }),
-            axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/likes`, { headers }),
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, { headers }),
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/clothes`, { headers }),
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits`, { headers }),
+            axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/likes`, { headers }),
         ])
             .then(([userRes, clothesRes, outfitsRes, likesRes]) => {
                 setUser(userRes.data);

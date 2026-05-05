@@ -47,8 +47,8 @@ export default function Wardrobe() {
     const fetchData = async () => {
         try {
             const [tagsResponse, clothesResponse] = await Promise.all([
-                axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/tags`, { headers }),
-                axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes`, { headers })
+                axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/tags`, { headers }),
+                axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/clothes`, { headers })
             ]);
 
             const groupedTags = tagsResponse.data.reduce((acc, tag) => {
@@ -112,7 +112,7 @@ export default function Wardrobe() {
     const checkClothingUsage = async (clothingId) => {
         try {
             const { data } = await axios.get(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes/${clothingId}/outfits`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${clothingId}/outfits`,
                 { headers }
             );
             return data;
@@ -135,7 +135,7 @@ export default function Wardrobe() {
         setDeleteLoading(true);
         try {
             await axios.delete(
-                `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes/${itemToDelete.id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${itemToDelete.id}`,
                 { headers }
             );
             toast.success('Одежда удалена');
@@ -230,7 +230,7 @@ export default function Wardrobe() {
                         <div className={styles.modalBody}>
                             <img
                                 className={styles.deleteImage}
-                                src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${itemToDelete.image_path}`}
+                                src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${itemToDelete.image_path}`}
                                 alt={itemToDelete?.name}
                             />
 
@@ -251,7 +251,7 @@ export default function Wardrobe() {
                                                             className={`${styles.outfitClothesDiv} ${clothingItem.id === itemToDelete?.id && styles.deletingCloth}`}
                                                         >
                                                             <img
-                                                                src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${clothingItem.image_path}`}
+                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${clothingItem.image_path}`}
                                                                 alt={clothingItem?.name}
                                                             />
                                                         </div>
@@ -403,7 +403,7 @@ export default function Wardrobe() {
                             <p className={styles.imageDate}>{new Date(item.created_at).toLocaleDateString('ru-RU')}</p>
                             <div className={styles.imageWrapper}>
                                 <img
-                                    src={`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image_path}`}
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
                                     alt={item.name}
                                 />
                             </div>

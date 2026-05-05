@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import styles from './MyLikes.module.css';
 import Loader from "@/module/loader/Loader";
 
-const API_URL = process.env.NEXT_PUBLIC_LARAVEL_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function MyLikes() {
     const [outfits, setOutfits] = useState([]);

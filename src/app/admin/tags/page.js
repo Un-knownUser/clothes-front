@@ -34,7 +34,7 @@ export default function TagsAdminPage() {
     const fetchTags = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/tags`, {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/tags`, {
                 headers,
                 params: { page, search, group: groupFilter, sort_by: sortBy, sort_dir: sortDir }
             });
@@ -77,7 +77,7 @@ export default function TagsAdminPage() {
     const handleCreateSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/tags`, newTag, { headers });
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/tags`, newTag, { headers });
             toast.success('Тег успешно создан');
             setIsModalOpen(false);
             setNewTag({ label: '', key: '', group: 'main' }); // Сброс формы
@@ -98,7 +98,7 @@ export default function TagsAdminPage() {
 
     const handleEditSave = async (id) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/tags/${id}`, editForm, { headers });
+            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/tags/${id}`, editForm, { headers });
             toast.success('Тег обновлен');
             setEditingId(null);
             fetchTags();
@@ -110,7 +110,7 @@ export default function TagsAdminPage() {
     const handleDelete = async (id) => {
         if (!confirm('Вы уверены, что хотите удалить этот тег? Это может повлиять на привязанные вещи.')) return;
         try {
-            await axios.delete(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/admin/tags/${id}`, { headers });
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/tags/${id}`, { headers });
             toast.success('Тег удален');
             fetchTags();
         } catch (error) {
