@@ -122,6 +122,7 @@
 }
 
 .close {
+    z-index: 1;
     position: absolute;
     top: var(--spacing-sm);
     right: var(--spacing-sm);

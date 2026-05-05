@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import Loader from "@/module/loader/Loader";
 import styles from './PublicOutfits.module.css';
+import filterBadWords from "./filterBadWords";
 
 export default function PublicOutfits() {
     const [outfits, setOutfits] = useState([]);
@@ -202,7 +203,7 @@ export default function PublicOutfits() {
                                         comments.map(c => (
                                             <div key={c.id} className={styles.comment}>
                                                 <span className={styles.commentUser}>{c.user.name}</span>
-                                                <p className={styles.commentText}>{c.content}</p>
+                                                <p className={styles.commentText}>{filterBadWords(c.content)}</p>
                                                 <span className={styles.commentDate}>
                                                     {new Date(c.created_at).toLocaleDateString()}
                                                 </span>

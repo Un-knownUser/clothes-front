@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {User, LogOut, ChevronRight } from "lucide-react";
+import { LogOut, ChevronRight } from "lucide-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
@@ -13,6 +13,7 @@ export default function Profile() {
     const [user, setUser] = useState(null);
     const [clothes, setClothes] = useState([]);
     const [outfits, setOutfits] = useState([]);
+    const [likes, setLikes] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,11 +31,13 @@ export default function Profile() {
             axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/user`, { headers }),
             axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/clothes`, { headers }),
             axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/outfits`, { headers }),
+            axios.get(`${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/api/likes`, { headers }),
         ])
-            .then(([userRes, clothesRes, outfitsRes]) => {
+            .then(([userRes, clothesRes, outfitsRes, likesRes]) => {
                 setUser(userRes.data);
                 setClothes(clothesRes.data.data || clothesRes.data || []);
                 setOutfits(outfitsRes.data.data || outfitsRes.data || []);
+                setLikes(likesRes.data.data || likesRes.data || []);
             })
             .catch((err) => {
                 console.error("Ошибка загрузки профиля:", err);
@@ -57,6 +60,9 @@ export default function Profile() {
                 <div className={styles.userInfo}>
                     <h2>{user.name || "Пользователь"}</h2>
                     <p>{user.email}</p>
+                    {user.role === "admin" && (
+                        <Link href="/admin/users" className="btn btn-primary">Панель администратора</Link>
+                    )}
                 </div>
             </div>
 
@@ -70,7 +76,6 @@ export default function Profile() {
                             </div>
                             <h2>{clothes.length}</h2>
                         </Link>
-
                     </li>
                     <li><span></span></li>
                     <li>
@@ -81,7 +86,16 @@ export default function Profile() {
                             </div>
                             <h2>{outfits.length}</h2>
                         </Link>
-
+                    </li>
+                    <li><span></span></li>
+                    <li>
+                        <Link href="/my-likes">
+                            <div className={styles.statsName}>
+                                <p>Мои лайки</p>
+                                <ChevronRight />
+                            </div>
+                            <h2>{likes.length}</h2>
+                        </Link>
                     </li>
                 </ul>
             </div>

@@ -34,7 +34,7 @@
 .stats {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1px 1fr;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
     gap: var(--spacing-sm);
 }
 
