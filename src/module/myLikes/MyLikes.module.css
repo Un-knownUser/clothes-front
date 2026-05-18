@@ -113,3 +113,9 @@
     color: var(--grey);
     font-size: 0.875rem;
 }
+
+@media (max-width: 500px) {
+    .outfitsList {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}

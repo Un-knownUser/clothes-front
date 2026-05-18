@@ -1,7 +1,13 @@
+"use client"
+
 import styles from './OutfitModal.module.css';
-import {ThermometerSun, X} from "lucide-react";
+import { X } from "lucide-react";
+import {useState} from "react";
+import ImageLightbox from "@/module/imageLightbox/ImageLightbox";
 
 export default function OutfitModal({ outfit, isOpen, onClose, status }) {
+    const [fullScreenImage, setFullScreenImage] = useState(null);
+
     if (!isOpen || !outfit) return null;
 
     const clothing = outfit.clothing || [];
@@ -19,14 +25,15 @@ export default function OutfitModal({ outfit, isOpen, onClose, status }) {
     }, {});
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className={`${styles.modal} ${styles[status]}`} onClick={e => e.stopPropagation()}>
-                <div className={styles.header}>
-                    <h2>{outfit.name}</h2>
-                    <button onClick={onClose} className="none-btn">
-                        <X />
-                    </button>
-                </div>
+        <>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className={`${styles.modal} ${styles[status]}`} onClick={e => e.stopPropagation()}>
+                    <div className={styles.header}>
+                        <h2>{outfit.name}</h2>
+                        <button onClick={onClose} className="none-btn">
+                            <X />
+                        </button>
+                    </div>
                     {clothing.length > 0 ? (
                         <>
                             <div className={styles.zonesGrid}>
@@ -34,22 +41,23 @@ export default function OutfitModal({ outfit, isOpen, onClose, status }) {
                                     <div key={category} className={styles.zoneGroup}>
                                         <h4>{category} ({items.length})</h4>
                                         <div className={styles.zoneItems}>
-                                            {items.map((item) => (
-                                                <div key={item.id}>
-                                                    <img
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
-                                                        alt={item.name || 'Одежда'}
-                                                        className={styles.modalClothingImg}
-                                                    />
-                                                </div>
-                                            ))}
+                                            {items.map((item) => {
+                                                const imgUrl = `${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`;
+                                                return (
+                                                    <div key={item.id}>
+                                                        <img
+                                                            src={imgUrl}
+                                                            alt={item.name || 'Одежда'}
+                                                            className={styles.modalClothingImg}
+                                                            style={{ cursor: 'pointer' }}
+                                                            onClick={() => setFullScreenImage(imgUrl)}
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 ))}
-                            </div>
-                            <div className={styles.outfitTemp}>
-                                <ThermometerSun />
-                                <p>{outfit.deg || 'N/A'}°C</p>
                             </div>
                         </>
                     ) : (
@@ -57,7 +65,13 @@ export default function OutfitModal({ outfit, isOpen, onClose, status }) {
                             Одежда не загружена в этом образе
                         </p>
                     )}
+                </div>
             </div>
-        </div>
+            <ImageLightbox
+                isOpen={!!fullScreenImage}
+                src={fullScreenImage}
+                onClose={() => setFullScreenImage(null)}
+            />
+        </>
     );
 }

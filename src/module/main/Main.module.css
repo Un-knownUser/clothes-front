@@ -242,6 +242,7 @@
 }
 
 .locationBadge {
+    text-align: left;
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -257,6 +258,10 @@
 .locationBadge:hover {
     background: var(--black);
     color: var(--white);
+}
+
+.locationBadge svg {
+    width: 20px;
 }
 
 /* Стили самого окошка */

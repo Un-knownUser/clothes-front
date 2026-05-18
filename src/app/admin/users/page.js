@@ -92,6 +92,14 @@ export default function UsersAdminPage() {
         }
     };
 
+    const formatRole = (role) => {
+        if (role === 'admin') {
+            return "Администратор"
+        } else if (role === 'user') {
+            return "Пользователь"
+        }
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.toolbar}>
@@ -119,7 +127,7 @@ export default function UsersAdminPage() {
                     <tr>
                         <th onClick={() => handleSort('id')}>ID {sortBy === 'id' && (sortDir === 'asc' ? '↑' : '↓')}</th>
                         <th onClick={() => handleSort('name')}>Имя {sortBy === 'name' && (sortDir === 'asc' ? '↑' : '↓')}</th>
-                        <th onClick={() => handleSort('email')}>Email {sortBy === 'email' && (sortDir === 'asc' ? '↑' : '↓')}</th>
+                        <th onClick={() => handleSort('email')}>Почта {sortBy === 'email' && (sortDir === 'asc' ? '↑' : '↓')}</th>
                         <th onClick={() => handleSort('role')}>Роль {sortBy === 'role' && (sortDir === 'asc' ? '↑' : '↓')}</th>
                         <th onClick={() => handleSort('created_at')}>Дата регистрации {sortBy === 'created_at' && (sortDir === 'asc' ? '↑' : '↓')}</th>
                         <th>Действия</th>
@@ -144,12 +152,12 @@ export default function UsersAdminPage() {
                                             value={editRole}
                                             onChange={(e) => setEditRole(e.target.value)}
                                         >
-                                            <option value="user">user</option>
-                                            <option value="admin">admin</option>
+                                            <option value="user">Пользователь</option>
+                                            <option value="admin">Администратор</option>
                                         </select>
                                     ) : (
                                         <span className={styles.badge}>
-                                            {user.role || 'user'}
+                                            {formatRole(user.role) || 'user'}
                                         </span>
                                     )}
                                 </td>

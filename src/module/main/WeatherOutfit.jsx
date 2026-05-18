@@ -33,22 +33,43 @@ export function WeatherOutfit({ initialTemp = 15 }) {
     const fetchCurrentTempByCity = async (cityName, silent = false) => {
         if (!silent) setWeatherLoading(true);
         try {
-            const { data } = await axios.get(`${WEATHER_BASE_URL}/current.json`, {
-                params: { key: WEATHER_API_KEY, q: cityName, lang: 'ru' }
+            // 1. Геокодинг: получаем координаты города (ключ не нужен)
+            const geoRes = await axios.get(`https://geocoding-api.open-meteo.com/v1/search`, {
+                params: { name: cityName, count: 1, language: 'ru', format: 'json' }
             });
 
-            const tempC = Math.round(data?.current?.temp_c);
+            if (!geoRes.data.results || geoRes.data.results.length === 0) {
+                throw new Error('City not found');
+            }
+
+            const { latitude, longitude, name } = geoRes.data.results[0];
+
+            // 2. Получаем погоду по координатам (ключ тоже не нужен)
+            const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast`, {
+                params: {
+                    latitude,
+                    longitude,
+                    current: 'temperature_2m',
+                    wind_speed_unit: 'ms',
+                }
+            });
+
+            const tempC = Math.round(weatherRes.data.current.temperature_2m);
+
             setCurrentTemp(tempC);
-            setCity(data.location.name); // Обновляем на официальное название из API
+            setCity(name);
 
             if (typeof window !== 'undefined') {
-                window.localStorage.setItem('weather_city', data.location.name);
+                window.localStorage.setItem('weather_city', name);
             }
-            if (!silent) toast.success(`Погода обновлена: ${data.location.name}`);
+
+            if (!silent) toast.success(`Погода обновлена: ${name}`);
             setShowCitySelector(false);
             setIsEditingCity(false);
+
         } catch (e) {
-            toast.error('Город не найден');
+            console.error('Weather error:', e);
+            toast.error('Не удалось определить город или погоду');
         } finally {
             setWeatherLoading(false);
         }

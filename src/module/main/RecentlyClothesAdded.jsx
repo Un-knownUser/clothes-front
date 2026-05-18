@@ -5,8 +5,10 @@ import Cookies from "js-cookie";
 import styles from "./Main.module.css";
 import axios from "axios";
 import Loader from "@/module/loader/Loader";
+import ImageLightbox from "@/module/imageLightbox/ImageLightbox";
 
 export default function RecentlyClothesAdded() {
+    const [fullScreenImage, setFullScreenImage] = useState(null);
     const [recentlyAdded, setRecentlyAdded] = useState([]);
     const [recentlyCount, setRecentlyCount] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -40,24 +42,36 @@ export default function RecentlyClothesAdded() {
     if (error) return <div className={styles.error}>{error}</div>;
 
     return (
-        <div className={styles.container}>
-            <h3>Недавно добавленные предметы ({recentlyCount || 0})</h3>
-            {recentlyAdded.length === 0 ? (
-                <div className={styles.empty}>Вы пока ничего не добавили</div>
-            ) : (
-                <div style={{ overflowX: 'scroll', weight: '100%' }}>
-                    <ul className={styles.recentlyAddList}>
-                        {recentlyAdded.map((item) => (
-                            <li key={item.id}>
-                                <img
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
-                                    alt={item.name}
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </div>
+        <>
+            <div className={styles.container}>
+                <h3>Недавно добавленные предметы ({recentlyCount || 0})</h3>
+                {recentlyAdded.length === 0 ? (
+                    <div className={styles.empty}>Вы пока ничего не добавили</div>
+                ) : (
+                    <div style={{ overflowX: 'scroll', weight: '100%' }}>
+                        <ul className={styles.recentlyAddList}>
+                            {recentlyAdded.map((item) => {
+                                const imgUrl = `${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`;
+                                return (
+                                    <li key={item.id}>
+                                        <img
+                                            src={imgUrl}
+                                            alt={item.name || 'Одежда'}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => setFullScreenImage(imgUrl)}
+                                        />
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                )}
+            </div>
+            <ImageLightbox
+                isOpen={!!fullScreenImage}
+                src={fullScreenImage}
+                onClose={() => setFullScreenImage(null)}
+            />
+        </>
     );
 }

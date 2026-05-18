@@ -87,7 +87,7 @@
     gap: var(--spacing-xs);
 }
 
-.deleteBtn {
+.deleteBtn, .editBtn {
     width: 30px;
     height: 30px;
     border: none;
@@ -131,4 +131,182 @@
 
 .confirmActions button {
     flex: 1;
+}
+
+.editModal {
+    background: var(--white);
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    overflow-y: auto;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-xs) / 2);
+}
+
+.inputGroup label {
+    font-size: 0.875rem;
+    color: var(--grey);
+    font-weight: 500;
+}
+
+.inputGroup input {
+    padding: var(--spacing-xs);
+    border: 1px solid var(--grey);
+    border-radius: var(--radius-sm);
+    color: var(--grey);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputGroup input:focus {
+    border-color: var(--black);
+}
+
+.clothingEditor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+/* Списки картинок */
+.selectedClothesList,
+.availableClothesList {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-xs) / 2);
+    overflow-x: auto;
+    min-height: 80px;
+}
+
+/* Карточка вещи в форме редактирования */
+.clothingThumbCard {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 1px solid var(--grey-light);
+}
+
+.clothingThumbCard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Кнопка крестика на уже выбранных вещах */
+.removeIconBtn {
+    position: absolute;
+    top: calc(var(--spacing-xs) / 2);
+    right: calc(var(--spacing-xs) / 2);
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.removeIconBtn:hover {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+/* Оверлей плюсика при наведении на вещи из гардероба */
+.addOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.clothingThumbCard:hover .addOverlay {
+    opacity: 1;
+}
+
+/* Блок отдельной категории */
+.categorySection {
+    border-radius: var(--radius-sm);
+    padding: 0 var(--spacing-xs);
+    border: 1px solid var(--grey);
+}
+
+/* Кликабельный заголовок аккордеона */
+.categoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) 0;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s;
+}
+
+.categoryHeader:hover {
+    opacity: 0.8;
+}
+
+.categoryHeader svg {
+    width: 20px;
+}
+
+.categoryTitle {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--black);
+    font-weight: 600;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.categoryBadge {
+    background-color: var(--black);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: calc(var(--spacing-xs) / 2);
+    border-radius: var(--radius-sm);
+}
+
+/* Содержимое раскрытого списка */
+.categoryContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+    border-top: 1px solid var(--grey);
 }

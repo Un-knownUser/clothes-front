@@ -118,6 +118,16 @@ export default function TagsAdminPage() {
         }
     };
 
+    const formatTag = (tag) => {
+        switch (tag) {
+            case 'main': return "Тип одежды"
+            case 'color': return "Цвет"
+            case 'season': return "Сезон"
+            case 'style': return "Стиль"
+            case 'occasion': return "Повод"
+        }
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.toolbar}>
@@ -190,11 +200,11 @@ export default function TagsAdminPage() {
                                                 value={editForm.group}
                                                 onChange={(e) => setEditForm({...editForm, group: e.target.value})}
                                             >
-                                                <option value="main">main</option>
-                                                <option value="color">color</option>
-                                                <option value="season">season</option>
-                                                <option value="style">style</option>
-                                                <option value="occasion">occasion</option>
+                                                <option value="main">Тип</option>
+                                                <option value="color">Цвет</option>
+                                                <option value="season">Сезон</option>
+                                                <option value="style">Стиль</option>
+                                                <option value="occasion">Повод</option>
                                             </select>
                                         </td>
                                         <td className={styles.actionCells}>
@@ -206,7 +216,7 @@ export default function TagsAdminPage() {
                                     <>
                                         <td><strong>{tag.label}</strong></td>
                                         <td><code>{tag.key}</code></td>
-                                        <td><span className={styles.badge}>{tag.group}</span></td>
+                                        <td><span className={styles.badge}>{formatTag(tag.group)}</span></td>
                                         <td className={styles.actionCells}>
                                             <button onClick={() => startEditing(tag)} className={styles.btnEdit}>Редактировать</button>
                                             <button onClick={() => handleDelete(tag.id)} className={styles.btnDelete}>Удалить</button>

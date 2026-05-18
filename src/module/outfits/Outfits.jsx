@@ -28,7 +28,10 @@ export default function CreateOutfit() {
         tops: 'Верх',
         bottoms: 'Низ',
         shoes: 'Обувь',
-        accessories: 'Аксессуары'
+        accessories: 'Аксессуары',
+        outerwear: 'Верхняя одежда',
+        headwear: 'Головные уборы',
+
     };
 
     useEffect(() => {

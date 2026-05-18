@@ -1,37 +1,42 @@
 import { NextResponse } from "next/server";
 
-// Список точных публичных путей
-const publicRoutes = ['/', '/public-outfits'];
-// Префиксы для публичных путей (например, /auth/login, /auth/register)
-const publicPrefixes = ['/auth'];
+// Страницы ТОЛЬКО для неавторизованных (гостей)
+const guestOnlyRoutes = ['/'];
+const guestOnlyPrefixes = ['/auth'];
+
+// Страницы, доступные ВСЕМ (и гостям, и авторизованным)
+const publicForAllRoutes = ['/public-outfits'];
 
 export function middleware(request) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get("token")?.value;
 
-    // Проверяем, является ли текущий путь публичным
-    const isPublicPage =
-        publicRoutes.includes(pathname) ||
-        publicPrefixes.some(prefix => pathname.startsWith(prefix));
+    // Проверяем тип страницы
+    const isGuestOnly =
+        guestOnlyRoutes.includes(pathname) ||
+        guestOnlyPrefixes.some(prefix => pathname.startsWith(prefix));
+
+    const isPublicForAll = publicForAllRoutes.includes(pathname);
 
     // Пользователь АВТОРИЗОВАН
     if (token) {
-        if (isPublicPage) {
-            // Не пускаем авторизованных на лендинг и страницы логина
+        // Если лезет на страницу логина/регистрации или лендинг
+        if (isGuestOnly) {
             return NextResponse.redirect(new URL('/main', request.url));
         }
+        // На /public-outfits и защищенные маршруты — пропускаем
         return NextResponse.next();
     }
 
     // Пользователь НЕ АВТОРИЗОВАН
-    if (!isPublicPage) {
+    if (!isGuestOnly && !isPublicForAll) {
         // Запоминаем, куда он хотел попасть, и отправляем на логин
         const loginUrl = new URL("/auth", request.url);
         loginUrl.searchParams.set("from", pathname);
         return NextResponse.redirect(loginUrl);
     }
 
-    // Неавторизованный идет на публичную страницу — пропускаем
+    // Неавторизованный идет на доступную ему страницу — пропускаем
     return NextResponse.next();
 }
 

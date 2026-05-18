@@ -1,18 +1,23 @@
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, HeartOff, Send, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Heart, HeartOff, Send, X, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import Loader from "@/module/loader/Loader";
 import styles from './PublicOutfits.module.css';
 import filterBadWords from "./filterBadWords";
+import { useDebouncedCallback } from "use-debounce";
+import ImageLightbox from "@/module/imageLightbox/ImageLightbox";
 
 export default function PublicOutfits() {
+    const [fullScreenImage, setFullScreenImage] = useState(null);
     const [outfits, setOutfits] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userLikes, setUserLikes] = useState(new Set());
 
-    // Состояние модалки и комментариев
+    // Новое состояние для поиска
+    const [searchTerm, setSearchTerm] = useState('');
+
     const [selectedOutfit, setSelectedOutfit] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
@@ -27,7 +32,7 @@ export default function PublicOutfits() {
 
     useEffect(() => {
         loadUserLikes();
-        fetchPublicOutfits();
+        fetchPublicOutfits(); // При первой загрузке загрузит всё без поиска
     }, []);
 
     useEffect(() => {
@@ -50,9 +55,15 @@ export default function PublicOutfits() {
         }
     };
 
-    const fetchPublicOutfits = async () => {
+    // Обновляем функцию: теперь она принимает параметр query
+    const fetchPublicOutfits = async (query = "") => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/public-outfits`);
+            const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/public-outfits`);
+            if (query) {
+                url.searchParams.append('search', query);
+            }
+
+            const res = await fetch(url.toString());
             const data = await res.json();
             setOutfits(data.data || []);
         } catch (error) {
@@ -60,6 +71,18 @@ export default function PublicOutfits() {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Создаем отложенный вызов (задержка 500мс)
+    const debouncedSearch = useDebouncedCallback((value) => {
+        fetchPublicOutfits(value);
+    }, 500);
+
+    // Обработчик ввода текста
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        debouncedSearch(value); // Запускаем поиск с задержкой
     };
 
     const fetchComments = async (outfitId) => {
@@ -140,98 +163,125 @@ export default function PublicOutfits() {
     if (loading) return <Loader height={100} size={80} position="absolute" />;
 
     return (
-        <div className="flex-column-sm">
-            <h2>Публичные сборки</h2>
+        <>
+            <div className="flex-column-sm">
+                <h2>Публичные сборки</h2>
 
-            <div className={styles.outfitsList}>
-                {outfits.map((outfit) => (
-                    <div key={outfit.id} className={styles.outfitCard} onClick={() => handleOpenDetails(outfit)}>
-                        <div className={styles.cardHeader}>
-                            <h3>{outfit.name} <span className={styles.temp}>({outfit.deg}°C)</span></h3>
-                        </div>
+                <div className={styles.searchWrapper}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Найти образ..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
+                    <Search className={styles.searchIcon} size={20} />
+                </div>
 
-                        <div className={styles.imagePreview}>
-                            {outfit.clothing.slice(0, 3).map((item, idx) => (
-                                <img
-                                    key={item.id}
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
-                                    alt=""
-                                />
-                            ))}
-                            {outfit.clothing.length > 3 && (
-                                <div className={styles.moreBadge}>+{outfit.clothing.length - 3}</div>
-                            )}
-                        </div>
+                {outfits.length === 0 && !loading && (
+                    <p style={{ textAlign: 'center', color: 'var(--grey)' }}>Ничего не найдено</p>
+                )}
 
-                        <div className={styles.cardFooter}>
-                            <span className={styles.outfitAuthor}>@{outfit.user.name}</span>
-                            <div className={styles.likeSection} onClick={(e) => toggleLike(e, outfit.id)}>
-                                {userLikes.has(outfit.id) ? <HeartOff size={18} color="#ff4d4d" /> : <Heart size={18} />}
-                                <span className={styles.likesCount}>{outfit.likes_count}</span>
+                <div className={styles.outfitsList}>
+                    {outfits.map((outfit) => (
+                        <div key={outfit.id} className={styles.outfitCard} onClick={() => handleOpenDetails(outfit)}>
+                            <div className={styles.cardHeader}>
+                                <h3>{outfit.name} <span className={styles.temp}>({outfit.deg}°C)</span></h3>
                             </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
-            {/* Модальное окно деталей */}
-            {selectedOutfit && (
-                <div className="modal-overlay" onClick={() => setSelectedOutfit(null)}>
-                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setSelectedOutfit(null)} className={`none-btn ${styles.close}`}>
-                            <X />
-                        </button>
-                        <div className={styles.modalGrid}>
-                            <div className={styles.modalGallery}>
-                                {selectedOutfit.clothing.map(item => (
+                            <div className={styles.imagePreview}>
+                                {outfit.clothing.slice(0, 3).map((item) => (
                                     <img
                                         key={item.id}
                                         src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`}
-                                        alt={item.name}
+                                        alt=""
                                     />
                                 ))}
+                                {outfit.clothing.length > 3 && (
+                                    <div className={styles.moreBadge}>+{outfit.clothing.length - 3}</div>
+                                )}
                             </div>
 
-                            <div className={styles.modalSidebar}>
-                                <div className={styles.sidebarHeader}>
-                                    <h3>{selectedOutfit.name}</h3>
-                                    <p className={styles.outfitAuthor}>Автор: {selectedOutfit.user.name}</p>
+                            <div className={styles.cardFooter}>
+                                <span className={styles.outfitAuthor}>@{outfit.user.name}</span>
+                                <div className={styles.likeSection} onClick={(e) => toggleLike(e, outfit.id)}>
+                                    {userLikes.has(outfit.id) ? <HeartOff size={18} color="#ff4d4d" /> : <Heart size={18} />}
+                                    <span className={styles.likesCount}>{outfit.likes_count}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Модальное окно деталей */}
+                {selectedOutfit && (
+                    <div className="modal-overlay" onClick={() => setSelectedOutfit(null)}>
+                        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                            <button onClick={() => setSelectedOutfit(null)} className={`none-btn ${styles.close}`}>
+                                <X />
+                            </button>
+                            <div className={styles.modalGrid}>
+                                <div className={styles.modalGallery}>
+                                    {selectedOutfit.clothing.map(item => {
+                                        const imgUrl = `${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`;
+                                        return (
+                                            <img
+                                                key={item.id}
+                                                src={imgUrl}
+                                                alt={item.name || 'Одежда'}
+                                                style={{cursor: 'pointer'}}
+                                                onClick={() => setFullScreenImage(imgUrl)}
+                                            />
+                                        );
+                                    })}
                                 </div>
 
-                                <div className={styles.commentsList}>
-                                    {isCommentsLoading ? <Loader size={30} /> : (
-                                        comments.map(c => (
-                                            <div key={c.id} className={styles.comment}>
-                                                <span className={styles.commentUser}>{c.user.name}</span>
-                                                <p className={styles.commentText}>{filterBadWords(c.content)}</p>
-                                                <span className={styles.commentDate}>
+                                <div className={styles.modalSidebar}>
+                                    <div className={styles.sidebarHeader}>
+                                        <h3>{selectedOutfit.name}</h3>
+                                        <p className={styles.outfitAuthor}>Автор: {selectedOutfit.user.name}</p>
+                                    </div>
+
+                                    <div className={styles.commentsList}>
+                                        {isCommentsLoading ? <Loader size={30} /> : (
+                                            comments.map(c => (
+                                                <div key={c.id} className={styles.comment}>
+                                                    <span className={styles.commentUser}>{c.user.name}</span>
+                                                    <p className={styles.commentText}>{filterBadWords(c.content)}</p>
+                                                    <span className={styles.commentDate}>
                                                     {new Date(c.created_at).toLocaleDateString()}
                                                 </span>
-                                            </div>
-                                        ))
-                                    )}
-                                    <div ref={commentsEndRef} />
-                                </div>
+                                                </div>
+                                            ))
+                                        )}
+                                        <div ref={commentsEndRef} />
+                                    </div>
 
-                                <div className={styles.commentInputWrapper}>
-                                    <div className={styles.commentInput}>
-                                        <input
-                                            value={newComment}
-                                            onChange={(e) => setNewComment(e.target.value)}
-                                            placeholder="Написать комментарий..."
-                                            onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
-                                            disabled={isSending}
-                                        />
-                                        <button onClick={handleSendComment} disabled={isSending}>
-                                            <Send size={20} />
-                                        </button>
+                                    <div className={styles.commentInputWrapper}>
+                                        <div className={styles.commentInput}>
+                                            <input
+                                                value={newComment}
+                                                onChange={(e) => setNewComment(e.target.value)}
+                                                placeholder="Написать комментарий..."
+                                                onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
+                                                disabled={isSending}
+                                            />
+                                            <button onClick={handleSendComment} disabled={isSending}>
+                                                <Send size={20} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+            <ImageLightbox
+                isOpen={!!fullScreenImage}
+                src={fullScreenImage}
+                onClose={() => setFullScreenImage(null)}
+            />
+        </>
     );
 }
