@@ -5,7 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
-import { X, Check, XCircle } from 'lucide-react';
+import {X, Check, XCircle, Trash2, Pencil} from 'lucide-react';
 import styles from './../Admin.module.css';
 
 export default function TagsAdminPage() {
@@ -218,8 +218,8 @@ export default function TagsAdminPage() {
                                         <td><code>{tag.key}</code></td>
                                         <td><span className={styles.badge}>{formatTag(tag.group)}</span></td>
                                         <td className={styles.actionCells}>
-                                            <button onClick={() => startEditing(tag)} className={styles.btnEdit}>Редактировать</button>
-                                            <button onClick={() => handleDelete(tag.id)} className={styles.btnDelete}>Удалить</button>
+                                            <button onClick={() => startEditing(tag)} className={styles.btnEdit}><Pencil size={16} /></button>
+                                            <button onClick={() => handleDelete(tag.id)} className={styles.btnDelete}><Trash2 size={16} /></button>
                                         </td>
                                     </>
                                 )}

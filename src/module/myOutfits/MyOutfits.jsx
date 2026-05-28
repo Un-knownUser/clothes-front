@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-// Добавили ChevronDown и ChevronUp для выпадающих списков
 import { Trash2, Edit2, X, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import styles from './MyOutfits.module.css';
@@ -12,7 +11,6 @@ import Loader from "@/module/loader/Loader";
 import Link from "next/link";
 import ImageLightbox from "@/module/imageLightbox/ImageLightbox";
 
-// Вынесли функцию наружу, чтобы использовать в разных частях компонента
 const getCategory = (item) => item?.main_tag?.label || 'Другое';
 
 export default function MyOutfits() {
@@ -27,8 +25,11 @@ export default function MyOutfits() {
     const [isUpdating, setIsUpdating] = useState(false);
     const [isWardrobeLoading, setIsWardrobeLoading] = useState(false);
 
-    // Новое состояние для отслеживания открытых категорий
     const [expandedCategories, setExpandedCategories] = useState({});
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [lastPage, setLastPage] = useState(1);
+    const [isMoreLoading, setIsMoreLoading] = useState(false);
 
     const token = Cookies.get('token');
     const headers = { Authorization: `Bearer ${token}` };
@@ -39,21 +40,44 @@ export default function MyOutfits() {
             router.push('/login');
             return;
         }
-        fetchOutfits();
+        fetchOutfits(1, false);
     }, []);
 
-    const fetchOutfits = async () => {
+    // функция загрузки
+    const fetchOutfits = async (page = 1, append = false) => {
         try {
             const { data } = await axios.get(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/outfits`,
-                { headers }
+                {
+                    headers,
+                    params: { page }
+                }
             );
-            setOutfits(data);
+
+            const newOutfits = data.data || data || [];
+
+            if (append) {
+                setOutfits(prev => [...prev, ...newOutfits]);
+            } else {
+                setOutfits(newOutfits);
+            }
+
+            setCurrentPage(data.current_page || 1);
+            setLastPage(data.last_page || 1);
         } catch (error) {
             console.error('Ошибка загрузки:', error);
             toast.error('Не удалось загрузить образы');
         } finally {
             setLoading(false);
+            setIsMoreLoading(false);
+        }
+    };
+
+    // Обработчик кнопки "Показать еще"
+    const handleLoadMore = () => {
+        if (currentPage < lastPage && !isMoreLoading) {
+            setIsMoreLoading(true);
+            fetchOutfits(currentPage + 1, true);
         }
     };
 
@@ -170,7 +194,8 @@ export default function MyOutfits() {
         });
     };
 
-    if (loading) return <Loader height={100} size={80} position="absolute" />;
+    // Показываем лоадер только при первой загрузке
+    if (loading && outfits.length === 0) return <Loader height={100} size={80} position="absolute" />;
 
     // Получаем список всех уникальных категорий из ВСЕГО гардероба
     const allCategories = Array.from(new Set(wardrobe.map(getCategory)));
@@ -231,6 +256,19 @@ export default function MyOutfits() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Кнопка "Показать еще" */}
+                {currentPage < lastPage && (
+                    <div className={styles.loadMoreWrapper}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleLoadMore}
+                            disabled={isMoreLoading}
+                        >
+                            Показать еще
+                        </button>
                     </div>
                 )}
 
@@ -295,7 +333,7 @@ export default function MyOutfits() {
                                                         {isExpanded ? <ChevronUp size={20} color="#888" /> : <ChevronDown size={20} color="#888" />}
                                                     </div>
 
-                                                    {/* Контент категории, виден только если isExpanded === true */}
+                                                    {/* Контент категории */}
                                                     {isExpanded && (
                                                         <div className={styles.categoryContent}>
                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
@@ -343,7 +381,11 @@ export default function MyOutfits() {
                     </div>
                 )}
             </div>
-            <ImageLightbox isOpen={!!fullScreenImage} src={fullScreenImage} onClose={() => setFullScreenImage(null)} />
+            <ImageLightbox
+                isOpen={!!fullScreenImage}
+                src={fullScreenImage}
+                onClose={() => setFullScreenImage(null)}
+            />
         </>
     );
 }

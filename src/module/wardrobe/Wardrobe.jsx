@@ -1,15 +1,20 @@
 "use client"
 
 import styles from "./Wardrobe.module.css";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Filter, X, MoveUp, MoveDown, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import Loader from "@/module/loader/Loader";
-import {toast} from "sonner";
+import { toast } from "sonner";
 import ImageLightbox from "@/module/imageLightbox/ImageLightbox";
+
+import WardrobeHeader from "./WardrobeHeader";
+import ClothingCard from "./ClothingCard";
+import FilterModal from "./FilterModal";
+import DeleteReplaceModal from "./DeleteReplaceModal";
 
 export default function Wardrobe() {
     const [fullScreenImage, setFullScreenImage] = useState(null);
@@ -24,18 +29,14 @@ export default function Wardrobe() {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [usedInOutfits, setUsedInOutfits] = useState([]);
 
-    const [filters, setFilters] = useState({
-        main: [],
-        color: [],
-        season: [],
-        style: [],
-        occasion: []
-    });
+    const [replacements, setReplacements] = useState({});
+    const [activeReplaceOutfitId, setActiveReplaceOutfitId] = useState(null);
 
+    const [filters, setFilters] = useState({ main: [], color: [], season: [], style: [], occasion: [] });
     const [sortBy, setSortBy] = useState('created_at');
     const [sortOrder, setSortOrder] = useState('desc');
 
-    const token  = Cookies.get("token");
+    const token = Cookies.get("token");
     const headers = { Authorization: `Bearer ${token}` };
     const router = useRouter();
 
@@ -43,8 +44,10 @@ export default function Wardrobe() {
         if (!token) {
             setLoading(false);
             router.push("/login");
+        } else {
+            fetchData();
         }
-    }, [token, router])
+    }, [token, router]);
 
     const fetchData = async () => {
         try {
@@ -54,57 +57,37 @@ export default function Wardrobe() {
             ]);
 
             const groupedTags = tagsResponse.data.reduce((acc, tag) => {
-                if (!acc[tag.group]) {
-                    acc[tag.group] = [];
-                }
+                if (!acc[tag.group]) acc[tag.group] = [];
                 acc[tag.group].push(tag);
                 return acc;
             }, {});
 
             setAllTags(groupedTags);
-            setClothes(clothesResponse.data);
-            setFilteredClothes(clothesResponse.data);
+            const clothesData = clothesResponse.data.data || clothesResponse.data;
+            setClothes(clothesData);
+            setFilteredClothes(clothesData);
         } catch (error) {
             console.error("Ошибка загрузки:", error);
         } finally {
             setLoading(false);
         }
-    }
-
-    useEffect(() => {
-        if (token) {
-            fetchData();
-        }
-    }, [])
+    };
 
     useEffect(() => {
         let result = [...clothes];
 
-        if (filters.main.length > 0) {
-            result = result.filter(item =>
-                filters.main.includes(item.main_tag_id)
-            );
-        }
+        if (filters.main.length > 0) result = result.filter(item => filters.main.includes(item.main_tag_id));
 
         ['color', 'season', 'style', 'occasion'].forEach(group => {
             if (filters[group].length > 0) {
-                result = result.filter(item =>
-                    item.tags?.some(tag =>
-                        tag.group === group && filters[group].includes(tag.id)
-                    )
-                );
+                result = result.filter(item => item.tags?.some(tag => tag.group === group && filters[group].includes(tag.id)));
             }
         });
 
         result.sort((a, b) => {
-            let comparison = 0;
-
-            if (sortBy === 'created_at') {
-                comparison = new Date(a.created_at) - new Date(b.created_at);
-            } else if (sortBy === 'name') {
-                comparison = a.name.localeCompare(b.name, 'ru');
-            }
-
+            let comparison = sortBy === 'created_at'
+                ? new Date(a.created_at) - new Date(b.created_at)
+                : a.name.localeCompare(b.name, 'ru');
             return sortOrder === 'asc' ? comparison : -comparison;
         });
 
@@ -113,13 +96,9 @@ export default function Wardrobe() {
 
     const checkClothingUsage = async (clothingId) => {
         try {
-            const { data } = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${clothingId}/outfits`,
-                { headers }
-            );
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${clothingId}/outfits`, { headers });
             return data;
         } catch (error) {
-            console.error("Ошибка проверки использования:", error);
             return [];
         }
     };
@@ -131,21 +110,48 @@ export default function Wardrobe() {
         setDeleteModalOpen(true);
     };
 
-    const confirmDelete = async () => {
-        if (!itemToDelete) return;
+    const closeDeleteModal = () => {
+        setDeleteModalOpen(false);
+        setTimeout(() => {
+            setActiveReplaceOutfitId(null);
+            setReplacements({});
+            setItemToDelete(null);
+            setUsedInOutfits([]);
+        }, 300);
+    };
 
+    const handleSelectReplacement = (item) => {
+        setReplacements(prev => ({ ...prev, [activeReplaceOutfitId]: item }));
+        setActiveReplaceOutfitId(null);
+    };
+
+    const hasReplacements = Object.keys(replacements).length > 0;
+
+    const handleSaveOrDelete = async () => {
+        if (!itemToDelete) return;
         setDeleteLoading(true);
         try {
-            await axios.delete(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${itemToDelete.id}`,
-                { headers }
-            );
-            toast.success('Одежда удалена');
+            if (hasReplacements) {
+                const updatePromises = usedInOutfits.map(outfit => {
+                    const replacement = replacements[outfit.id];
+                    if (replacement) {
+                        const newClothingIds = outfit.clothing.map(c => c.id === itemToDelete.id ? replacement.id : c.id);
+                        return axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/outfits/${outfit.id}`, {
+                            name: outfit.name, deg: outfit.deg, clothing_ids: newClothingIds
+                        }, { headers });
+                    }
+                    return Promise.resolve();
+                });
+                await Promise.all(updatePromises);
+                toast.success('Изменения в образах сохранены');
+            } else {
+                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/clothes/${itemToDelete.id}`, { headers });
+                toast.success('Одежда удалена');
+            }
             fetchData();
-            setDeleteModalOpen(false);
+            closeDeleteModal();
         } catch (error) {
-            console.error("Ошибка удаления:", error);
-            toast.error('Ошибка при удалении');
+            toast.error(hasReplacements ? 'Ошибка при сохранении' : 'Ошибка при удалении');
         } finally {
             setDeleteLoading(false);
         }
@@ -154,246 +160,56 @@ export default function Wardrobe() {
     const handleFilterChange = (group, tagId) => {
         setFilters(prev => {
             const currentGroup = prev[group];
-            const newGroup = currentGroup.includes(tagId)
-                ? currentGroup.filter(id => id !== tagId)
-                : [...currentGroup, tagId];
-
+            const newGroup = currentGroup.includes(tagId) ? currentGroup.filter(id => id !== tagId) : [...currentGroup, tagId];
             return { ...prev, [group]: newGroup };
         });
     };
 
-    const resetFilters = () => {
-        setFilters({
-            main: [],
-            color: [],
-            season: [],
-            style: [],
-            occasion: []
-        });
-    };
-
+    const resetFilters = () => setFilters({ main: [], color: [], season: [], style: [], occasion: [] });
     const activeFiltersCount = Object.values(filters).flat().length;
 
-    if (loading) {
-        return <Loader height={100} size={80} position="absolute" />;
-    }
+    if (loading) return <Loader height={100} size={80} position="absolute" />;
+
+    const availableForReplacement = clothes.filter(c => c.id !== itemToDelete?.id && c.main_tag_id === itemToDelete?.main_tag_id);
 
     return (
         <>
             <div className="flex-column-sm">
-                <div className={styles.header}>
-                    <h2>Мой гардероб ({filteredClothes.length}{clothes.length !== filteredClothes.length && ` из ${clothes.length}`})</h2>
+                <WardrobeHeader
+                    totalClothes={clothes.length}
+                    filteredClothesCount={filteredClothes.length}
+                    activeFiltersCount={activeFiltersCount}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                    onOpenFilters={() => setIsFilterModalOpen(true)}
+                />
 
-                    <div className={styles.topControls}>
-                        <button
-                            className={styles.filterBtn}
-                            onClick={() => setIsFilterModalOpen(true)}
-                        >
-                            <Filter className={styles.svg} />
-                            {activeFiltersCount > 0 && (
-                                <span className={styles.filterBadge}>{activeFiltersCount}</span>
-                            )}
-                        </button>
+                <DeleteReplaceModal
+                    isOpen={deleteModalOpen}
+                    onClose={closeDeleteModal}
+                    itemToDelete={itemToDelete}
+                    deleteLoading={deleteLoading}
+                    usedInOutfits={usedInOutfits}
+                    replacements={replacements}
+                    activeReplaceOutfitId={activeReplaceOutfitId}
+                    setActiveReplaceOutfitId={setActiveReplaceOutfitId}
+                    handleSelectReplacement={handleSelectReplacement}
+                    hasReplacements={hasReplacements}
+                    handleSaveOrDelete={handleSaveOrDelete}
+                    availableForReplacement={availableForReplacement}
+                />
 
-                        <div className={styles.sortPanel}>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className={styles.sortSelect}
-                            >
-                                <option value="created_at">По дате</option>
-                                <option value="name">По названию</option>
-                            </select>
-
-                            <button
-                                className={styles.sortOrderBtn}
-                                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                                title={sortOrder === 'asc' ? 'По возрастанию' : 'По убыванию'}
-                            >
-                                {sortOrder === 'asc' ? <MoveUp className={styles.svg} /> : <MoveDown className={styles.svg} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {deleteModalOpen && (
-                    <div className={`modal-overlay ${styles.wardrobeModal}`} onClick={() => setDeleteModalOpen(false)}>
-                        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                            <div className={styles.modalHeader}>
-                                <h3>Удалить одежду?</h3>
-                                <button
-                                    onClick={() => setDeleteModalOpen(false)}
-                                    className="none-btn"
-                                    disabled={deleteLoading}
-                                >
-                                    <X />
-                                </button>
-                            </div>
-
-                            <div className={styles.modalBody}>
-                                <img
-                                    className={styles.deleteImage}
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${itemToDelete.image_path}`}
-                                    alt={itemToDelete?.name}
-                                />
-
-                                {usedInOutfits.length > 0 ? (
-                                    <>
-                                        <div className={styles.warningText}>
-                                            <p>Эта одежда используется в <strong>{usedInOutfits.length}</strong> образе(ах)</p>
-                                            <p>Образы станут неполными после удаления одного из элементов.</p>
-                                        </div>
-                                        <ul className={styles.outfitsList}>
-                                            {usedInOutfits.map((outfit) => (
-                                                <li key={outfit.id} className={styles.outfitItem}>
-                                                    <p>{outfit.name}</p>
-                                                    <div className={styles.outfitClothes}>
-                                                        {outfit.clothing.map((clothingItem) => (
-                                                            <div
-                                                                key={clothingItem.id}
-                                                                className={`${styles.outfitClothesDiv} ${clothingItem.id === itemToDelete?.id && styles.deletingCloth}`}
-                                                            >
-                                                                <img
-                                                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${clothingItem.image_path}`}
-                                                                    alt={clothingItem?.name}
-                                                                />
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </>
-                                ) : (
-                                    <div className={styles.goodText}>
-                                        <p>Эта одежда не используется в образах.</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={styles.modalFooter}>
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={() => setDeleteModalOpen(false)}
-                                    disabled={deleteLoading}
-                                >
-                                    Отмена
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={confirmDelete}
-                                    disabled={deleteLoading}
-                                >
-                                    {deleteLoading ? 'Удаление...' : 'Удалить'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {isFilterModalOpen && (
-                    <div className={`modal-overlay ${styles.wardrobeModal}`} onClick={() => setIsFilterModalOpen(false)}>
-                        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                            <div className={styles.modalHeader}>
-                                <h2>Фильтры</h2>
-                                <button onClick={() => setIsFilterModalOpen(false)} className="none-btn">
-                                    <X />
-                                </button>
-                            </div>
-
-                            <div className={styles.modalBody}>
-                                {allTags.main && allTags.main.length > 0 && (
-                                    <div className={styles.filterGroup}>
-                                        <h4>Тип одежды</h4>
-                                        <div className={styles.filterOptions}>
-                                            {allTags.main.map(tag => (
-                                                <label key={tag.id}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.main.includes(tag.id)}
-                                                        onChange={() => handleFilterChange('main', tag.id)}
-                                                    />
-                                                    {tag.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {allTags.color && allTags.color.length > 0 && (
-                                    <div className={styles.filterGroup}>
-                                        <h4>Цвет</h4>
-                                        <div className={styles.filterOptions}>
-                                            {allTags.color.map(tag => (
-                                                <label key={tag.id}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.color.includes(tag.id)}
-                                                        onChange={() => handleFilterChange('color', tag.id)}
-                                                    />
-                                                    {tag.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {allTags.season && allTags.season.length > 0 && (
-                                    <div className={styles.filterGroup}>
-                                        <h4>Сезон</h4>
-                                        <div className={styles.filterOptions}>
-                                            {allTags.season.map(tag => (
-                                                <label key={tag.id}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.season.includes(tag.id)}
-                                                        onChange={() => handleFilterChange('season', tag.id)}
-                                                    />
-                                                    {tag.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {allTags.style && allTags.style.length > 0 && (
-                                    <div className={styles.filterGroup}>
-                                        <h4>Стиль</h4>
-                                        <div className={styles.filterOptions}>
-                                            {allTags.style.map(tag => (
-                                                <label key={tag.id}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={filters.style.includes(tag.id)}
-                                                        onChange={() => handleFilterChange('style', tag.id)}
-                                                    />
-                                                    {tag.label}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={styles.modalFooter}>
-                                {activeFiltersCount > 0 && (
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={resetFilters}
-                                    >
-                                        Сбросить ({activeFiltersCount})
-                                    </button>
-                                )}
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => setIsFilterModalOpen(false)}
-                                >
-                                    Применить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <FilterModal
+                    isOpen={isFilterModalOpen}
+                    onClose={() => setIsFilterModalOpen(false)}
+                    allTags={allTags}
+                    filters={filters}
+                    handleFilterChange={handleFilterChange}
+                    resetFilters={resetFilters}
+                    activeFiltersCount={activeFiltersCount}
+                />
 
                 {filteredClothes.length === 0 ? (
                     <p className={styles.emptyMessage}>
@@ -401,58 +217,21 @@ export default function Wardrobe() {
                     </p>
                 ) : (
                     <ul className={styles.wardrobeList}>
-                        {filteredClothes.map((item) => {
-                            const imgUrl = `${process.env.NEXT_PUBLIC_API_URL}/storage/${item.image_path}`;
-                            return (
-                                <li key={item.id}>
-                                    <p className={styles.imageDate}>{new Date(item.created_at).toLocaleDateString('ru-RU')}</p>
-                                    <div className={styles.imageWrapper}>
-                                        <img
-                                            src={imgUrl}
-                                            alt={item.name || 'Одежда'}
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => setFullScreenImage(imgUrl)}
-                                        />
-                                    </div>
-                                    <div className={styles.itemTags}>
-                                        {item.main_tag && (
-                                            <span className={`${styles.tag} ${styles['tag-main']}`}>
-                                        {item.main_tag.label}
-                                    </span>
-                                        )}
-                                        {item.tags && item.tags.length > 0 && item.tags.map(tag => (
-                                            <span
-                                                key={tag.id}
-                                                className={`${styles.tag} ${styles.additionalTag}`}
-                                            >
-                                        {tag.label}
-                                    </span>
-                                        ))}
-                                    </div>
-                                    <button
-                                        className={styles.deleteBtn}
-                                        onClick={() => handleDeleteClick(item)}
-                                        title="Удалить"
-                                    >
-                                        <Trash2 className={styles.svg} size={18} />
-                                    </button>
-                                </li>
-                            );
-                        })}
+                        {filteredClothes.map((item) => (
+                            <ClothingCard
+                                key={item.id}
+                                item={item}
+                                onClickImage={setFullScreenImage}
+                                onDeleteClick={handleDeleteClick}
+                            />
+                        ))}
                         <li className={styles.addCloth}>
-                            <Link href="/add">
-                                <Plus />
-                                <p>Добавить одежду</p>
-                            </Link>
+                            <Link href="/add"><Plus /><p>Добавить одежду</p></Link>
                         </li>
                     </ul>
                 )}
             </div>
-            <ImageLightbox
-                isOpen={!!fullScreenImage}
-                src={fullScreenImage}
-                onClose={() => setFullScreenImage(null)}
-            />
+            <ImageLightbox isOpen={!!fullScreenImage} src={fullScreenImage} onClose={() => setFullScreenImage(null)} />
         </>
     );
 }

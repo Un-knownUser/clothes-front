@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Heart, HeartOff, Send, X, Search } from 'lucide-react';
+import { Heart, Send, X, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import Cookies from 'js-cookie';
 import Loader from "@/module/loader/Loader";
@@ -13,10 +13,13 @@ export default function PublicOutfits() {
     const [fullScreenImage, setFullScreenImage] = useState(null);
     const [outfits, setOutfits] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [userLikes, setUserLikes] = useState(new Set());
 
-    // Новое состояние для поиска
     const [searchTerm, setSearchTerm] = useState('');
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [lastPage, setLastPage] = useState(1);
 
     const [selectedOutfit, setSelectedOutfit] = useState(null);
     const [comments, setComments] = useState([]);
@@ -32,7 +35,7 @@ export default function PublicOutfits() {
 
     useEffect(() => {
         loadUserLikes();
-        fetchPublicOutfits(); // При первой загрузке загрузит всё без поиска
+        fetchPublicOutfits("", 1, false); // Первая загрузка
     }, []);
 
     useEffect(() => {
@@ -55,34 +58,57 @@ export default function PublicOutfits() {
         }
     };
 
-    // Обновляем функцию: теперь она принимает параметр query
-    const fetchPublicOutfits = async (query = "") => {
+    // функция fetchPublicOutfits
+    const fetchPublicOutfits = async (query = "", page = 1, append = false) => {
         try {
             const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/public-outfits`);
             if (query) {
                 url.searchParams.append('search', query);
             }
+            url.searchParams.append('page', page);
 
             const res = await fetch(url.toString());
             const data = await res.json();
-            setOutfits(data.data || []);
+
+            const newOutfits = data.data || [];
+
+            if (append) {
+                // Если нажали "Еще" — плавно добавляем в конец массива
+                setOutfits(prev => [...prev, ...newOutfits]);
+            } else {
+                // Если это новый поиск или первая страница — перезаписываем стейт
+                setOutfits(newOutfits);
+            }
+
+            setCurrentPage(data.current_page || 1);
+            setLastPage(data.last_page || 1);
+
         } catch (error) {
             toast.error('Ошибка загрузки ленты');
         } finally {
             setLoading(false);
+            setIsMoreLoading(false);
         }
     };
 
-    // Создаем отложенный вызов (задержка 500мс)
     const debouncedSearch = useDebouncedCallback((value) => {
-        fetchPublicOutfits(value);
+        setLoading(true);
+        fetchPublicOutfits(value, 1, false);
     }, 500);
 
-    // Обработчик ввода текста
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-        debouncedSearch(value); // Запускаем поиск с задержкой
+        debouncedSearch(value);
+    };
+
+    // Функция для кнопки "Показать еще"
+    const handleLoadMore = () => {
+        if (currentPage < lastPage && !isMoreLoading) {
+            setIsMoreLoading(true);
+            const nextPage = currentPage + 1;
+            fetchPublicOutfits(searchTerm, nextPage, true);
+        }
     };
 
     const fetchComments = async (outfitId) => {
@@ -104,7 +130,7 @@ export default function PublicOutfits() {
     };
 
     const toggleLike = async (e, outfitId) => {
-        e.stopPropagation(); // Чтобы не открывалась модалка при клике на лайк
+        e.stopPropagation();
         const token = Cookies.get('token');
         if (!token) return toast.error('Войдите в аккаунт');
 
@@ -121,7 +147,6 @@ export default function PublicOutfits() {
                     isLiked ? newSet.delete(outfitId) : newSet.add(outfitId);
                     return newSet;
                 });
-                // Оптимистичное обновление счетчика в локальном стейте
                 setOutfits(prev => prev.map(o =>
                     o.id === outfitId
                         ? { ...o, likes_count: isLiked ? o.likes_count - 1 : o.likes_count + 1 }
@@ -160,7 +185,8 @@ export default function PublicOutfits() {
         }
     };
 
-    if (loading) return <Loader height={100} size={80} position="absolute" />;
+    // Показываем главный лоадер только если это первая загрузка и данных вообще еще нет
+    if (loading && outfits.length === 0) return <Loader height={100} size={80} position="absolute" />;
 
     return (
         <>
@@ -205,13 +231,26 @@ export default function PublicOutfits() {
                             <div className={styles.cardFooter}>
                                 <span className={styles.outfitAuthor}>@{outfit.user.name}</span>
                                 <div className={styles.likeSection} onClick={(e) => toggleLike(e, outfit.id)}>
-                                    {userLikes.has(outfit.id) ? <HeartOff size={18} color="#ff4d4d" /> : <Heart size={18} />}
+                                    {userLikes.has(outfit.id) ? <Heart size={18} fill="#ff4d4d" color="#ff4d4d" /> : <Heart size={18} />}
                                     <span className={styles.likesCount}>{outfit.likes_count}</span>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+
+                {/* Кнопка "Показать еще" */}
+                {currentPage < lastPage && (
+                    <div className={styles.loadMoreWrapper}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleLoadMore}
+                            disabled={isMoreLoading}
+                        >
+                            Показать еще
+                        </button>
+                    </div>
+                )}
 
                 {/* Модальное окно деталей */}
                 {selectedOutfit && (

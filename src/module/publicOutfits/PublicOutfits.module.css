@@ -24,7 +24,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: var(--spacing-sm);
-    margin-bottom: 100px;
 }
 
 .outfitCard {
@@ -123,6 +122,12 @@
 .emptyState p {
     font-size: 1.125rem;
     margin: 0;
+}
+
+.loadMoreWrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 100px;
 }
 
 /* Адаптивность */

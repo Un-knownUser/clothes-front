@@ -4,8 +4,8 @@ import {cookies} from "next/headers";
 import {WeatherOutfit} from "@/module/main/WeatherOutfit";
 
 export const metadata = {
-    title: "Главная",
-    description: "Главная",
+    title: "Главная страница",
+    description: "Главная страница",
 };
 
 export default async function Page() {

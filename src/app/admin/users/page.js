@@ -5,7 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
-import { Check, XCircle } from 'lucide-react';
+import {Check, Pencil, XCircle} from 'lucide-react';
 import styles from './../Admin.module.css';
 
 export default function UsersAdminPage() {
@@ -172,7 +172,7 @@ export default function UsersAdminPage() {
                                         </>
                                     ) : (
                                         <>
-                                            <button onClick={() => startEditing(user)} className={styles.btnEdit}>Роль</button>
+                                            <button onClick={() => startEditing(user)} className={styles.btnEdit}><Pencil size={16} /></button>
                                         </>
                                     )}
                                 </td>
