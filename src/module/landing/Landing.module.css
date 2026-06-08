@@ -1,5 +1,20 @@
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-xs) 0;
+}
+.header img {
+    width: 100px;
+}
+
 .banner, .ourStyle, .convenience {
-    padding: 0 calc(var(--radius-md) * 4);
+    padding: 0 calc(var(--radius-md) * 3);
 }
 
 .banner {
@@ -27,12 +42,12 @@
 }
 
 .banner img {
-    max-height: 500px;
+    max-height: 80%;
     object-fit: contain;
 }
 
 .ourStyle {
-    padding-top: 150px;
+    padding-top: var(--spacing-sm);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -80,7 +95,7 @@
 }
 
 .convenience {
-    padding-top: 150px;
+    padding-top: 40px;
     display: grid;
     grid-template-columns: 2fr 2fr;
     align-items: center;
@@ -88,7 +103,7 @@
 }
 
 .convenience img {
-    max-height: 200px;
+    max-height: 400px;
     object-fit: contain;
 }
 
@@ -131,5 +146,11 @@
     .banner, .ourStyle, .convenience {
         padding-left: 0;
         padding-right: 0;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .ourStyleGrid, .convenience {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }

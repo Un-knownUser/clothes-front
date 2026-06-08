@@ -1,7 +1,11 @@
 "use client";
 
 import styles from "./Landing.module.css";
-import m from "./img/m.png";
+import m1 from "./img/1.png";
+import m2 from "./img/2.png";
+import m3 from "./img/3.png";
+import m4 from "./img/4.png";
+import Logo from "./img/Logo.svg";
 import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -11,6 +15,9 @@ export default function Landing() {
 
     return (
         <>
+            <header className={styles.header}>
+                <Image src={Logo} alt="Landing logo" width={256} height={256} />
+            </header>
             <section className={styles.banner}>
                 <div className={styles.leftSide}>
                     <h1>Что надеть? <br />Больше не вопрос</h1>
@@ -22,8 +29,7 @@ export default function Landing() {
                     )}
                 </div>
                 <div>
-                    {/* Сюда отлично впишется мокап телефона с главным экраном вашего приложения */}
-                    <Image src={m} alt="Главный экран приложения" width={1280} height={720} />
+                    <Image src={m1} alt="Главный экран приложения" width={1920} height={1920} />
                 </div>
             </section>
 
@@ -39,16 +45,14 @@ export default function Landing() {
                     </li>
                     <li>
                         <div className={styles.styleImage}>
-                            {/* Мокап экрана создания образа */}
-                            <Image src={m} alt="Конструктор образов" width={1280} height={720} />
+                            <Image src={m3} alt="Конструктор образов" width={1920} height={1920} />
                         </div>
-                        <h3>Конструктор луков</h3>
+                        <h3>Конструктор образов</h3>
                         <p>Сочетайте одежду и создавайте готовые комплекты прямо на экране, не перерывая полки.</p>
                     </li>
                     <li>
                         <div className={styles.styleImage}>
-                            {/* Мокап экрана с погодой и рекомендацией */}
-                            <Image src={m} alt="Подбор по погоде" width={1280} height={720} />
+                            <Image src={m2} alt="Подбор по погоде" width={1920} height={1920} />
                         </div>
                         <h3>Умная погода</h3>
                         <p>Дождь или +25°C? Выберите температуру за окном, и приложение само предложит подходящий наряд.</p>
@@ -58,8 +62,7 @@ export default function Landing() {
 
             <section className={styles.convenience}>
                 <div>
-                    {/* Красивый изометрический мокап или коллаж из нескольких экранов */}
-                    <Image src={m} alt="Удобство использования" width={1280} height={720} />
+                    <Image src={m4} alt="Удобство использования" width={1920} height={1920} />
                 </div>
                 <div className={styles.rightSide}>
                     <h2>Стиль, который работает на вас</h2>
