@@ -74,6 +74,10 @@ export default function Landing() {
                     </ul>
                 </div>
             </section>
+            <footer className={styles.footer}>
+                <Image src={Logo} alt="Landing logo" width={256} height={256} />
+                <p>©2025-2026 Все права защищены</p>
+            </footer>
         </>
     )
 }

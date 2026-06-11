@@ -24,6 +24,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: var(--spacing-sm);
+    margin-bottom: 100px;
 }
 
 .outfitCard {
@@ -36,6 +37,8 @@
     padding: var(--spacing-sm);
     transition: var(--transition);
     box-shadow: 3px 3px 10px var(--grey-light);
+    justify-content: space-between;
+
 }
 
 .cardHeader {

@@ -191,7 +191,6 @@
 .selectedClothesList,
 .availableClothesList {
     display: flex;
-    flex-direction: column;
     gap: calc(var(--spacing-xs) / 2);
     overflow-x: auto;
     min-height: 80px;

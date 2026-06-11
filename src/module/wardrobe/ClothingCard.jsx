@@ -23,11 +23,23 @@ export default function ClothingCard({ item, onClickImage, onDeleteClick }) {
                         {item.main_tag.label}
                     </span>
                 )}
-                {item.tags && item.tags.length > 0 && item.tags.map(tag => (
-                    <span key={tag.id} className={`${styles.tag} ${styles.additionalTag}`}>
-                        {tag.label}
-                    </span>
-                ))}
+                {item.tags && item.tags.length > 0 && (
+                    <>
+                        {/* Выводим только первые 3 тега */}
+                        {item.tags.slice(0, 2).map(tag => (
+                            <span key={tag.id} className={`${styles.tag} ${styles.additionalTag}`}>
+                                {tag.label}
+                             </span>
+                        ))}
+
+                        {/* Если тегов больше 3, выводим блок с оставшимся количеством */}
+                        {item.tags.length > 2 && (
+                            <span className={`${styles.tag} ${styles.additionalTag} ${styles.moreTags}`}>
+                                +{item.tags.length - 2}
+                            </span>
+                        )}
+                    </>
+                )}
             </div>
             <button className={styles.deleteBtn} onClick={() => onDeleteClick(item)} title="Удалить">
                 <Trash2 className={styles.svg} size={18} />
